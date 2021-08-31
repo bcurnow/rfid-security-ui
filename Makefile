@@ -18,5 +18,8 @@ run-docker:
 
 dev: run-docker
 
+run:
+	npm run serve
+
 clear:
 	clear
