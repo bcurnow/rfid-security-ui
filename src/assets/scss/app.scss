@@ -1,0 +1,10 @@
+// Your variable overrides
+// $body-bg: #0394fc;
+// $body-color: #000;
+
+// Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap';
+// BootstrapVue and its default variables
+@import 'vendors/bootstrap-vue/_custom';
+@import 'vendors/bootstrap-vue/index.scss';
+@import '~bootstrap-vue/src/icons.scss'
