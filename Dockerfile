@@ -37,3 +37,5 @@ USER node
 WORKDIR /rfid-security-ui
 
 EXPOSE 8080
+
+CMD ["npm", "run", "serve"]
