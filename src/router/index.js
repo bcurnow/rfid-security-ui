@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
-import MediaList from '@/views/media/MediaList.vue'
-import ConfigList from '@/views/config/ConfigList.vue'
+import configRoutes from './config.js'
+import mediaRoutes from './media.js'
+import permissionRoutes from './permission.js'
 
 Vue.use(VueRouter)
 
@@ -12,22 +13,16 @@ const routes = [
     name: 'Home',
     component: Home,
   },
-  {
-    path: '/media',
-    name: 'MediaList',
-    component: MediaList,
-  },
-  {
-    path: '/config',
-    name: 'ConfigList',
-    component: ConfigList,
-  },
 ]
+
+routes.push(...configRoutes)
+routes.push(...mediaRoutes)
+routes.push(...permissionRoutes)
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
 })
 
 export default router
