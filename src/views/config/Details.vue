@@ -1,9 +1,9 @@
 <template>
-  <b-modal id="config-details" title="Config Details" @show="resetModal" @hidden="resetModal" @ok="handleOk">
-    <form ref="configDetailsForm">
+  <b-modal id="item-details" title="Config Details" @show="resetModal" @hidden="resetModal" @ok="handleOk" v-on:item-selected="updateItem">
+    <form ref="itemDetailsForm">
       <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
-        <b-form-input id="key-input" v-model="config.key" v-if="!newConfig" plaintext></b-form-input>
-        <b-form-input id="key-input" v-model="config.key" v-if="newConfig" :state="keyState" placeholder="Config Key" required></b-form-input>
+        <b-form-input id="key-input" v-model="config.key" v-if="!newItem" plaintext></b-form-input>
+        <b-form-input id="key-input" v-model="config.key" v-if="newItem" :state="keyState" placeholder="Config Key" required></b-form-input>
       </b-form-group>
       <b-form-group label="Value:" label-for="value-input" invalid-feedback="A configuration value is required!">
         <b-form-input id="value-input" v-model="config.value" :state="valueState" placeholder="Config Value" required></b-form-input>
@@ -13,9 +13,21 @@
 </template>
 <script>
 export default {
+  data() {
+    return {
+      config: {},
+      keyState: null,
+      valueState: null,
+    }
+  },
+  computed: {
+    newItem: function() {
+      return this.config.key == null
+    }
+  },
   methods: {
     checkFormValidity() {
-      const valid = this.$refs.configDetailsForm.checkValidity()
+      const valid = this.$refs.itemDetailsForm.checkValidity()
       this.keyState = valid
       this.valueState = valid
       return valid
@@ -23,7 +35,7 @@ export default {
     resetModal() {
       this.keyState = null
       this.valueState = null
-      this.config = this.selected
+      this.config = {}
     },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault()
@@ -34,12 +46,12 @@ export default {
         return
       }
 
-      if (this.newConfig) {
+      console.log(this.newItem)
+      if (this.newItem) {
         // This is a create
         this.$RFIDSecuritySvc.config.create(this.config)
         .then(() => {
-          this.$emit('configAdded', this.config)
-          console.log("Need to do something here...")
+          this.$emit('item-added', this.config)
         })
         .catch(function(error) {
           console.log(error)
@@ -55,20 +67,13 @@ export default {
         })
       }
       this.$nextTick(() => {
-          this.$bvModal.hide('config-details')
+          this.$bvModal.hide('item-details')
         })
     },
+    updateItem(item) {
+      console.log('updateItem')
+      this.config = item
+    },
   },
-  data() {
-    return {
-      config: this.selected,
-      newConfig: this.selected.key == null,
-      keyState: null,
-      valueState: null,
-    }
-  },
-  props: {
-    selected: Object,
-  }
 }
 </script>
