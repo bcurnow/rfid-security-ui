@@ -2,7 +2,7 @@
   <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="primary" fixed="top" class="font-weight-bold">
       <b-navbar-brand class="d-flex align-items-center">
-        <b-icon icon="broadcast" font-scale="2" variant="dark" class="mr-1"></b-icon>
+        <b-icon icon="broadcast" font-scale="2" variant="light" class="mr-1"></b-icon>
         <b-link href="#" class="text-light">RFID Security Manager</b-link>
       </b-navbar-brand>
 
