@@ -7,6 +7,7 @@ import router from './router'
 import config from './config'
 import {name, version} from '../package'
 import RFIDSecuritySvc from './components/RFIDSecuritySvc.js'
+import store from './store'
 
 
 config.appVersion = name + ' v' + version
@@ -23,5 +24,6 @@ Vue.prototype.$RFIDSecuritySvc = RFIDSecuritySvc
 
 new Vue({
   router,
-  render: h => h(App),
+  store,
+  render: h => h(App)
 }).$mount('#app')
