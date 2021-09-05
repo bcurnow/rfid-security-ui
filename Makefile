@@ -14,7 +14,7 @@ build-docker:
 	  ${currentDir}
 
 run-docker:
-	docker run -it -p 8080:8080 --mount src="${currentDir}",target=/${imageName},type=bind ${imageName}:latest /bin/bash
+	docker run -it -p 9090:8080 --mount src="${currentDir}",target=/${imageName},type=bind ${imageName}:latest /bin/bash
 
 dev: run-docker
 
