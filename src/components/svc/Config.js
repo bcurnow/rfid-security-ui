@@ -1,25 +1,27 @@
 import api from './Base.js'
 import combineURLs from 'axios/lib/helpers/combineURLs.js'
 
-const configSvc = {
+const BASE_URL = '/config'
+
+const svc = {
   api: api,
-  create: function(config) {
-    return api.post('/config', config)
+  create: function(data) {
+    return api.post(BASE_URL, data)
   },
-  delete: function(key) {
-    return api.delete(combineURLs('/config', key), {})
+  delete: function(pk) {
+    return api.delete(combineURLs(BASE_URL, pk), {})
   },
-  get: function(key) {
-    return api.get(combineURLs('/config', key), {})
+  get: function(pk) {
+    return api.get(combineURLs(BASE_URL, pk), {})
   },
   list: function() {
-    return api.get('/config', {})
+    return api.get(BASE_URL, {})
   },
-  update: function(key, value) {
-    return api.put(combineURLs('/config', key), {
+  update: function(pk, value) {
+    return api.put(combineURLs(BASE_URL, pk), {
       value: value,
     })
   }
 }
 
-export default configSvc
+export default svc
