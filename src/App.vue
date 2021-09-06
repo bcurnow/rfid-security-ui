@@ -18,7 +18,7 @@
             <b-icon icon="file-lock" class="mr-1"></b-icon>
             Media
           </b-nav-item>
-          <b-nav-item href="#">
+          <b-nav-item to="/permission">
             <b-icon icon="lock-fill" class="mr-1"></b-icon>
             Permissions
           </b-nav-item>
