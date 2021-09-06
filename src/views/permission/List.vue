@@ -1,15 +1,46 @@
 <template>
   <div class="container text-left">
-    <item-list :deleteItem="deleteItem" :fields="fields" :itemPromise="itemPromise" :newItem="newItem" primary-key="id">
-      <template v-slot:detailsModal>
-        <item-details :selected="selected" v-on:itemAdded="addItem"></item-details>
+    <item-list
+      :deleteItemPromise="deleteItemPromise"
+      :errorResolver="errorResolver"
+      :fields="fields"
+      :itemsPromise="itemsPromise"
+      :itemString="itemString"
+      :itemType="itemType"
+      :primaryKey="primaryKey"
+    >
+      <template v-slot:detailsModal="detailsModalProps">
+        <item-details
+          :createItemPromise="createItemPromise"
+          :errorResolver="errorResolver"
+          :isNew="detailsModalProps.isNew"
+          :itemAddedCallback="detailsModalProps.itemAdded"
+          :itemString="itemString"
+          :itemType="itemType"
+          :postCreateItemLookupPromise="postCreateItemLookupPromise"
+          :selected="detailsModalProps.selected"
+          :updateItemPromise="updateItemPromise"
+          :validationStates="validationStates"
+        >
+          <template v-slot:itemFormGroups>
+            <b-form-group label="ID:" label-for="id-input" v-if="!detailsModalProps.isNew">
+              <b-form-input id="id-input" v-model="detailsModalProps.selected.id" plaintext></b-form-input>
+            </b-form-group>
+            <b-form-group label="Name:" label-for="name-input" invalid-feedback="A permission name is required!">
+              <b-form-input id="name-input" v-model="detailsModalProps.selected.name" :state="validationStates.nameState" placeholder="Permission Name" required></b-form-input>
+            </b-form-group>
+            <b-form-group label="Description:" label-for="desc-input">
+              <b-form-input id="desc-input" v-model="detailsModalProps.selected.desc" placeholder="Permission Description"></b-form-input>
+            </b-form-group>
+          </template>
+        </item-details>
       </template>
     </item-list>
   </div>
 </template>
 <script>
   import List from '../common/List'
-  import Details from './Details'
+  import Details from '../common/Details'
 
   export default {
     components: {
@@ -18,63 +49,47 @@
     },
     data() {
       return {
-        selected: {},
+        errorResolver: this.$RFIDSecuritySvc.errorToString,
         fields: [
-          {
-            key: 'id',
-            sortable: true,
-            label: 'ID'
-          },
           {
             key: 'name',
             sortable: true,
           },
           {
             key: 'desc',
-            label: 'Description'
           },
           {
             key: 'controls',
             label: '',
           }
         ],
+        itemType: "Permission",
+        primaryKey: "id",
+        validationStates: {
+          idState: null,
+          nameState: null,
+        }
       }
     },
     methods: {
-      deleteItem(config) {
-        this.$bvModal.msgBoxConfirm(`Are you sure you want to remove configuration key '${config.key}'?`, {
-          title: "Delete configuration?",
-        })
-        .then(value => {
-          if (value) {
-            this.$RFIDSecuritySvc.config.delete(config.key)
-            .then(() => {
-              this.items.splice(this.items.findIndex(item => item.key === config.key), 1)
-            })
-            .catch(err => {
-              this.$bvModal.msgBoxOk(`Unable to delete configuration key '${config.key}': ${err}`)
-            })
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      createItemPromise: function(item) {
+        return this.$RFIDSecuritySvc.permission.create(item)
       },
-      itemPromise: function() {
-        return this.$RFIDSecuritySvc.config.list()
+      deleteItemPromise: function(item) {
+        return this.$RFIDSecuritySvc.permission.delete(item.name)
       },
-      newItem: () => {
-        return { key: null }
+      itemString: item => {
+        return item.name
       },
-    },
-    mounted() {
-      this.$RFIDSecuritySvc.config.list()
-      .then(response => {
-        this.items = response.data
-      })
-      .catch(function(error) {
-        console.log(error)
-      })
+      itemsPromise: function() {
+        return this.$RFIDSecuritySvc.permission.list()
+      },
+      postCreateItemLookupPromise: function(item) {
+        return this.$RFIDSecuritySvc.permission.get(item.name)
+      },
+      updateItemPromise: function(item) {
+        return this.$RFIDSecuritySvc.permission.update(item.id, item.name, item.desc)
+      }
     },
   }
 </script>
