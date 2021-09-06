@@ -5,8 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    listDetailShared: {
+      item: null,
+      newItem: false,
+    }
   },
   mutations: {
+    updateListDetailShared: (state, sharedState) => {
+      state.listDetailShared = sharedState
+    }
   },
   actions: {
   },
