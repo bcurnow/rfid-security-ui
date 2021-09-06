@@ -6,7 +6,7 @@
         <b-table id="CommonList" responsive="md" :items="items" :fields="fields" :primary-key="primaryKey" :sort-by="primaryKey" head-row-variant="primary" sort-icon-left hover>
           <template #cell(controls)="data">
             <slot name="controlsCell" v-if="includeControls(data.item[primaryKey])">
-              <div class="text-nowrap">
+              <div class="text-nowrap text-right">
                 <b-button size="sm" v-b-modal.item-details variant="primary" @click="editItem(data.item)" pill><b-icon icon="pencil"></b-icon></b-button>
                 <b-button v-if="hasDeleteFunction" size="sm" class="ml-1" variant="danger" @click="handleDelete(data.item)" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
               </div>
@@ -41,7 +41,7 @@
     },
     methods: {
       createItem() {
-        this.selected = this.newItem()
+        this.selected = {}
         this.isNew = true
       },
       editItem(item) {
@@ -49,7 +49,7 @@
         this.isNew = false
       },
       handleDelete(item) {
-        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete '${item[this.primaryKey]}'?`, {
+        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete '${this.itemString(item)}'?`, {
           title: `Delete ${this.itemType}?`,
         })
         .then(value => {
@@ -59,7 +59,7 @@
               this.items.splice(this.items.findIndex(otherItem => otherItem[this.primaryKey] === item[this.primaryKey]), 1)
             })
             .catch(err => {
-              this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${item[this.primaryKey]}': ${this.errorResolver(err)}`)
+              this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${this.itemString(item)}': ${this.errorResolver(err)}`)
             })
           }
         })
@@ -88,6 +88,12 @@
           return ""
         }
       },
+      itemString: {
+        type: Function,
+        default: function(item) {
+          return item[this.primaryKey]
+        },
+      },
       itemType: String,
       fields: {
         type: Array,
@@ -96,12 +102,6 @@
       itemsPromise: {
         type: Function,
         required: true,
-      },
-      newItem: {
-        type: Function,
-        default: function() {
-          return {}
-        }
       },
       primaryKey: {
         type: String,
