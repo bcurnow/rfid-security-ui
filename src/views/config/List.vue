@@ -5,7 +5,6 @@
       :itemType="itemType"
       :fields="fields"
       :itemsPromise="itemsPromise"
-      :newItem="newItem"
       :primaryKey="primaryKey"
       :controlFilter="controlFilter"
       :errorResolver="errorResolver"
@@ -82,9 +81,6 @@
       },
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.config.list()
-      },
-      newItem: () => {
-        return { key: null }
       },
       updateItemPromise: function(item) {
         return this.$RFIDSecuritySvc.config.update(item.key, item.value)
