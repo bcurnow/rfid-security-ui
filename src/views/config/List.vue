@@ -1,15 +1,33 @@
 <template>
   <div class="container text-left">
-    <item-list :deleteItemPromise="deleteItemPromise" itemType="Configuration" :fields="fields" :itemsPromise="itemsPromise" :newItem="newItem" primaryKey="key" :controlFilter="controlFilter" :errorResolver="errorResolver">
+    <item-list
+      :deleteItemPromise="deleteItemPromise"
+      :itemType="itemType"
+      :fields="fields"
+      :itemsPromise="itemsPromise"
+      :newItem="newItem"
+      :primaryKey="primaryKey"
+      :controlFilter="controlFilter"
+      :errorResolver="errorResolver"
+    >
       <template v-slot:detailsModal="detailsModalProps">
-        <item-details :itemAddedCallback="detailsModalProps.itemAdded" itemType="Configuration" :createItemPromise="createItemPromise" :updateItemPromise="updateItemPromise" :validationStates="validationStates" :errorResolver="errorResolver">
-          <template v-slot:itemFormGroups="formGroupProps">
+        <item-details
+          :itemAddedCallback="detailsModalProps.itemAdded"
+          :itemType="itemType"
+          :createItemPromise="createItemPromise"
+          :updateItemPromise="updateItemPromise"
+          :validationStates="validationStates"
+          :errorResolver="errorResolver"
+          :selected="detailsModalProps.selected"
+          :isNew="detailsModalProps.isNew"
+        >
+          <template v-slot:itemFormGroups>
             <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
-              <b-form-input id="key-input" v-model="formGroupProps.item.key" v-if="!formGroupProps.newItem" plaintext></b-form-input>
-              <b-form-input id="key-input" v-model="formGroupProps.item.key" v-if="formGroupProps.newItem" :state="validationStates.keyState" placeholder="Config Key" required></b-form-input>
+              <b-form-input id="key-input" v-model="detailsModalProps.selected.key" v-if="!detailsModalProps.isNew" plaintext></b-form-input>
+              <b-form-input id="key-input" v-model="detailsModalProps.selected.key" v-if="detailsModalProps.isNew" :state="validationStates.keyState" placeholder="Config Key" required></b-form-input>
             </b-form-group>
             <b-form-group label="Value:" label-for="value-input" invalid-feedback="A configuration value is required!">
-              <b-form-input id="value-input" v-model="formGroupProps.item.value" :state="validationStates.valueState" placeholder="Config Value" required></b-form-input>
+              <b-form-input id="value-input" v-model="detailsModalProps.selected.value" :state="validationStates.valueState" placeholder="Config Value" required></b-form-input>
             </b-form-group>
           </template>
         </item-details>
@@ -47,6 +65,8 @@
             label: '',
           }
         ],
+        itemType: "Configuration",
+        primaryKey: "key",
         validationStates: {
           keyState: null,
           valueState: null,
