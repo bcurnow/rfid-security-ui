@@ -1,20 +1,23 @@
 <template>
   <div class="container text-left">
-    <b-button size="md" v-b-modal.item-details variant="primary" @click="createItem" pill><b-icon icon="plus-circle-fill"></b-icon> Add</b-button>
+    <b-button class="mb-1" size="md" v-b-modal.item-details variant="primary" @click="createItem" pill><b-icon icon="plus-circle-fill"></b-icon> Add</b-button>
     <div class="row">
       <div class="col-sm">
         <b-table id="CommonList" responsive="md" :items="items" :fields="fields" :primary-key="primaryKey" :sort-by="primaryKey" head-row-variant="primary" sort-icon-left hover>
           <template #cell(controls)="data">
             <slot name="controlsCell" v-if="includeControls(data.item[primaryKey])">
-              <b-button size="sm" v-b-modal.item-details variant="primary" @click="editItem(data.item)" pill><b-icon icon="pencil"></b-icon></b-button>
-              <b-button v-if="hasDeleteFunction" size="sm" class="ml-1" variant="danger" @click="handleDelete(data.item)" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
+              <div class="text-nowrap">
+                <b-button size="sm" v-b-modal.item-details variant="primary" @click="editItem(data.item)" pill><b-icon icon="pencil"></b-icon></b-button>
+                <b-button v-if="hasDeleteFunction" size="sm" class="ml-1" variant="danger" @click="handleDelete(data.item)" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
+              </div>
             </slot>
           </template>
         </b-table>
+        <b-alert :show="hasError" variant="danger" fade dismissible>{{ error }}</b-alert>
       </div>
     </div>
-    <slot name="detailsModal" v-bind:itemAdded="itemAdded">
-      <h1>No modal content supplied!</h1>
+    <slot name="detailsModal" :itemAdded="itemAdded" :selected="selected" :isNew="isNew">
+      <b-alert show variant="warning" fade dismissible>No modal content supplied!</b-alert>
     </slot>
   </div>
 </template>
@@ -23,19 +26,27 @@
     computed: {
       hasDeleteFunction: function() {
         return this.deleteItemPromise && this.itemType
-      }
+      },
+      hasError: function() {
+        return this.error != null
+      },
     },
     data() {
       return {
+        error: null,
+        isNew: false,
         items: [],
+        selected: {},
       }
     },
     methods: {
       createItem() {
-        this.$store.commit('updateListDetailShared', {item: this.newItem(), newItem: true})
+        this.selected = this.newItem()
+        this.isNew = true
       },
       editItem(item) {
-        this.$store.commit('updateListDetailShared', {item: item, newItem: false})
+        this.selected = item
+        this.isNew = false
       },
       handleDelete(item) {
         this.$bvModal.msgBoxConfirm(`Are you sure you want to delete '${item[this.primaryKey]}'?`, {
@@ -108,8 +119,8 @@
       .then(response => {
         this.items = response.data
       })
-      .catch(function(error) {
-        console.log(error)
+      .catch(err => {
+        this.error = `An error occurred while loading the data: ${err}`
       })
     },
   }
