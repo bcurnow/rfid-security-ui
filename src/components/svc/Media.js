@@ -1,14 +1,28 @@
 import api from './Base.js'
 import combineURLs from 'axios/lib/helpers/combineURLs.js'
 
-const mediaSvc = {
+const BASE_URL = '/media'
+
+const svc = {
   api: api,
+  create: function(data) {
+    return api.post(BASE_URL, data)
+  },
+  delete: function(pk) {
+    return api.delete(combineURLs(BASE_URL, pk), {})
+  },
+  get: function(pk) {
+    return api.get(combineURLs(BASE_URL, pk), {})
+  },
   list: function() {
-    return api.get('/media', {})
+    return api.get(BASE_URL, {})
   },
-  get: function(id) {
-    return api.get(combineURLs('/media', id), {})
-  },
+  update: function(pk, name, desc) {
+    return api.put(combineURLs(BASE_URL, pk), {
+      name: name,
+      desc: desc,
+    })
+  }
 }
 
-export default mediaSvc
+export default svc
