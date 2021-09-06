@@ -1,6 +1,7 @@
 import mediaSvc from './svc/Media.js'
 import configSvc from './svc/Config.js'
 
+// TODO remove theses error, I don't think we'll use them
 export class ApiError extends Error {
   constructor(error) {
     super(error.message)
@@ -17,6 +18,32 @@ export class InvalidRequestError extends ApiError {}
 export class AuthNError extends ApiError {}
 export class AuthZError extends ApiError {}
 
+function errorToString(error) {
+  if (error.response) {
+    switch (error.response.status) {
+      case 400:
+        // 400 = Bad Request
+        return "Invalid Request"
+      case 401:
+        // 401 = Unauthorized
+        return "Permissions issue: Unauthorized"
+      case 403:
+        // 403 = Forbidden
+        return "Permissions issue: Forbidden"
+      case 404:
+        // 404 = Not Found
+        return "Data not found"
+      case 409:
+        // 409 = Conflict
+        return "Duplicate record"
+      default:
+        // Not sure what this error is
+        return `An unknown error occured: ${error}`
+    }
+  }
+}
+
+// TODO Remove this, I don't think we'll need it
 export function resolveError(error) {
   let resolvedError
   if (error.response) {
@@ -58,6 +85,7 @@ export function resolveError(error) {
 const RFIDSecuritySvc = {
   media: mediaSvc,
   config: configSvc,
+  errorToString: errorToString,
 }
 
 export default RFIDSecuritySvc
