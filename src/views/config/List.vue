@@ -1,8 +1,8 @@
 <template>
   <div class="container text-left">
-    <item-list :deleteItem="deleteItem" :fields="fields" :itemPromise="itemPromise" :newItem="newItem" primary-key="key">
-      <template v-slot:detailsModal>
-        <item-details></item-details>
+    <item-list :deleteItem="deleteItem" itemType="Configuration" :fields="fields" :itemsPromise="itemsPromise" :newItem="newItem" primary-key="key">
+      <template v-slot:detailsModal="slotProps">
+        <item-details :itemAddedCallback="slotProps.itemAdded"></item-details>
       </template>
     </item-list>
   </div>
@@ -36,40 +36,15 @@
       }
     },
     methods: {
-      deleteItem(item) {
-        this.$bvModal.msgBoxConfirm(`Are you sure you want to remove configuration key '${item.key}'?`, {
-          title: "Delete configuration?",
-        })
-        .then(value => {
-          if (value) {
-            this.$RFIDSecuritySvc.config.delete(item.key)
-            .then(() => {
-              this.$emit('item-deleted', item)
-            })
-            .catch(err => {
-              this.$bvModal.msgBoxOk(`Unable to delete configuration key '${item.key}': ${err}`)
-            })
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      deleteItem: function(item) {
+        return this.$RFIDSecuritySvc.config.delete(item.key)
       },
-      itemPromise: function() {
+      itemsPromise: function() {
         return this.$RFIDSecuritySvc.config.list()
       },
       newItem: () => {
         return { key: null }
       },
-    },
-    mounted() {
-      this.$RFIDSecuritySvc.config.list()
-      .then(response => {
-        this.items = response.data
-      })
-      .catch(function(error) {
-        console.log(error)
-      })
     },
   }
 </script>
