@@ -33,7 +33,7 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <router-view></router-view>
+    <router-view class="pt-3"></router-view>
     <b-container class="footer fixed-bottom" variant="primary" fluid>
       <b-row>
         <b-col></b-col>
