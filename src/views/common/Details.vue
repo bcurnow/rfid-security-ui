@@ -1,22 +1,18 @@
 <template>
   <b-modal id="item-details" :title="itemDetailsTitle" @show="resetModal" @hidden="resetModal" @ok="handleOk">
     <form ref="itemDetailsForm">
-      <slot name="itemFormGroups" v-bind:item="item" v-bind:newItem="newItem"></slot>
+      <slot name="itemFormGroups"></slot>
     </form>
   </b-modal>
 </template>
 <script>
 export default {
-  computed: {
-    item: function() {
-      return this.$store.state.listDetailShared.item
-    },
-    itemDetailsTitle: function() {
-      return `${this.itemType} Details`
-    },
-    newItem: function() {
-      return this.$store.state.listDetailShared.newItem
-    },
+  data() {
+    return {
+        item: this.selected,
+        newItem: this.isNew,
+        itemDetailsTitle: `${this.itemType} Details`
+    }
   },
   methods: {
     checkFormValidity() {
@@ -30,7 +26,8 @@ export default {
       for (const property in this.validationStates) {
         this.validationStates[property] = null
       }
-      this.config = this.$store.state.listDetailShared.item
+      this.item = this.selected
+      this.newItem = this.isNew
     },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault()
@@ -70,12 +67,16 @@ export default {
     errorResolver: {
       type: Function,
       default: function(error) {
-        console.log("Using default errorResolver")
+        console.log("WARNING: Using default errorResolver")
         if (error) {
           return error.toString()
         }
         return ""
       }
+    },
+    isNew: {
+      type: Boolean,
+      default: false,
     },
     itemType: {
       type: String,
@@ -83,6 +84,10 @@ export default {
     },
     itemAddedCallback: {
       type: Function,
+      required: true,
+    },
+    selected: {
+      type: Object,
       required: true,
     },
     updateItemPromise: {
