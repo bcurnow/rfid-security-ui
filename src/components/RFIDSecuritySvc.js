@@ -1,6 +1,7 @@
 import configSvc from './svc/Config.js'
 import mediaSvc from './svc/Media.js'
 import permissionSvc from './svc/Permission.js'
+import readerSvc from './svc/Reader.js'
 
 // TODO remove theses error, I don't think we'll use them
 export class ApiError extends Error {
@@ -88,6 +89,7 @@ const RFIDSecuritySvc = {
   errorToString: errorToString,
   media: mediaSvc,
   permission: permissionSvc,
+  reader: readerSvc,
 }
 
 export default RFIDSecuritySvc
