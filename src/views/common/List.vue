@@ -120,6 +120,7 @@
         this.items = response.data
       })
       .catch(err => {
+        console.log(err)
         this.error = `An error occurred while loading the data: ${err}`
       })
     },
