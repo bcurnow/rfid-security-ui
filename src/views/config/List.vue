@@ -2,23 +2,23 @@
   <div class="container text-left">
     <item-list
       :deleteItemPromise="deleteItemPromise"
-      :itemType="itemType"
+      :errorResolver="errorResolver"
       :fields="fields"
       :itemsPromise="itemsPromise"
+      :itemType="itemType"
       :primaryKey="primaryKey"
-      :controlFilter="controlFilter"
-      :errorResolver="errorResolver"
     >
       <template v-slot:detailsModal="detailsModalProps">
         <item-details
-          :itemAddedCallback="detailsModalProps.itemAdded"
-          :itemType="itemType"
           :createItemPromise="createItemPromise"
+          :errorResolver="errorResolver"
+          :isNew="detailsModalProps.isNew"
+          :itemAddedCallback="detailsModalProps.itemAdded"
+          :itemString="itemString"
+          :itemType="itemType"
+          :selected="detailsModalProps.selected"
           :updateItemPromise="updateItemPromise"
           :validationStates="validationStates"
-          :errorResolver="errorResolver"
-          :selected="detailsModalProps.selected"
-          :isNew="detailsModalProps.isNew"
         >
           <template v-slot:itemFormGroups>
             <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
