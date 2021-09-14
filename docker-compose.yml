@@ -1,6 +1,8 @@
 version: "3.9"
 services:
   rfidsecuritysvc:
+    depends_on:
+      - magicband-reader
     image: "rfid-security-svc:latest"
     volumes:
       - type: bind
@@ -18,7 +20,6 @@ services:
     environment:
       WEBPACK_PUBLIC: "devpi.local:8080"
       WEBPACK_DISABLE_HOST_CHECK: "true"
-      VUE_APP_RFID_API_URL: "http://devpi.local:8080/api/v1.0/"
     image: rfid-security-ui:latest
     ports:
       - "8080:8080"
@@ -26,6 +27,8 @@ services:
       - type: bind
         source: ../rfid-security-ui/
         target: /rfid-security-ui
+  magicband-reader:
+    image: "mock-magicband-reader:production"
 volumes:
   rfid-db:
     external: true
