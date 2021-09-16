@@ -1,13 +1,12 @@
 version: "3.9"
 services:
+  magicband-reader:
+    image: "mock-magicband-reader:production"
   rfidsecuritysvc:
     depends_on:
       - magicband-reader
-    image: "rfid-security-svc:latest"
+    image: "rfid-security-svc:production"
     volumes:
-      - type: bind
-        source: ../rfid-security-svc/
-        target: /rfid-security-svc
       - rfid-db:/rfid-db
   rfidsecurityui:
     build:
@@ -27,8 +26,6 @@ services:
       - type: bind
         source: ../rfid-security-ui/
         target: /rfid-security-ui
-  magicband-reader:
-    image: "mock-magicband-reader:production"
 volumes:
   rfid-db:
     external: true
