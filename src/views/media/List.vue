@@ -9,6 +9,9 @@
       :itemType="itemType"
       :primaryKey="primaryKey"
     >
+      <template v-slot:customControls="data">
+        <b-button size="sm" class="ml-1" variant="primary" :to="{ name: 'MediaPermissions', params: { mediaId: data.item.id } }" v-b-tooltip="{ title: 'Permissions ', variant: 'primary' }" pill><b-icon icon="key"></b-icon></b-button>
+      </template>
       <template v-slot:detailsModal="detailsModalProps">
         <item-details
           :createItemPromise="createItemPromise"
