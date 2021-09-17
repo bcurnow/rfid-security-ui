@@ -69,7 +69,7 @@ export default {
       }
       this.$nextTick(() => {
           this.$bvModal.hide('item-details')
-        })
+      })
     },
   },
   props: {
@@ -93,7 +93,9 @@ export default {
     },
     itemString: {
       type: Function,
-      required: true,
+      default: function(item) {
+        return item[this.primaryKey]
+      },
     },
     itemType: {
       type: String,
@@ -107,6 +109,10 @@ export default {
     selected: {
       type: Object,
       required: true,
+    },
+    primaryKey: {
+      type: String,
+      default: "id",
     },
     updateItemPromise: {
       type: Function,
