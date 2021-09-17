@@ -3,14 +3,36 @@
     <b-button class="mb-1" size="md" v-b-modal.item-details variant="primary" @click="createItem" pill><b-icon icon="plus-circle-fill"></b-icon> Add</b-button>
     <div class="row">
       <div class="col-sm">
-        <b-table id="CommonList" responsive="md" :items="items" :fields="fields" :primary-key="primaryKey" :sort-by="primaryKey" head-row-variant="primary" sort-icon-left hover>
+        <b-table
+          id="itemsTable"
+          responsive="md"
+          :items="itemsProvider"
+          :fields="fields"
+          :primary-key="primaryKey"
+          :sort-by="primaryKey"
+          :empty-text="emptyMessage"
+          show-empty
+          ref="itemsTable"
+          head-row-variant="primary"
+          sort-icon-left
+          hover
+          no-provider-sorting
+          no-provider-filtering>
+          <template #table-busy>
+            <div class="text-center text-primary my-2">
+              <b-spinner class="align-middle"></b-spinner>
+              <strong>Loading...</strong>
+            </div>
+          </template>
           <template #cell(controls)="data">
-            <slot name="controlsCell" v-if="includeControls(data.item[primaryKey])">
-              <div class="text-nowrap text-right">
-                <b-button size="sm" v-b-modal.item-details variant="primary" @click="editItem(data.item)" pill><b-icon icon="pencil"></b-icon></b-button>
-                <b-button v-if="hasDeleteFunction" size="sm" class="ml-1" variant="danger" @click="handleDelete(data.item)" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
-              </div>
-            </slot>
+            <div class="text-nowrap text-right">
+              <slot name="standardControls" v-if="includeControls(data.item[primaryKey])">
+                  <b-button size="sm" class="ml-1" v-b-modal.item-details variant="primary" @click="editItem(data.item)" v-b-tooltip="{ title: 'Edit', variant: 'primary' }" pill><b-icon icon="pencil"></b-icon></b-button>
+                  <b-button size="sm" class="ml-1" variant="danger" @click="handleDelete(data.item)" v-if="hasDeleteFunction" v-b-tooltip="{ title: 'Delete', variant: 'danger' }" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
+              </slot>
+              <slot name="customControls" :item="data.item">
+              </slot>
+            </div>
           </template>
         </b-table>
         <b-alert :show="hasError" variant="danger" fade dismissible>{{ error }}</b-alert>
@@ -24,6 +46,9 @@
 <script>
   export default {
     computed: {
+      emptyMessage: function() {
+        return `No ${this.itemType}[s] found`
+      },
       hasDeleteFunction: function() {
         return this.deleteItemPromise && this.itemType
       },
@@ -35,7 +60,6 @@
       return {
         error: null,
         isNew: false,
-        items: [],
         selected: {},
       }
     },
@@ -56,7 +80,7 @@
           if (value) {
             this.deleteItemPromise(item)
             .then(() => {
-              this.items.splice(this.items.findIndex(otherItem => otherItem[this.primaryKey] === item[this.primaryKey]), 1)
+              this.$refs.itemsTable.refresh()
             })
             .catch(err => {
               this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${this.itemString(item)}': ${this.errorResolver(err)}`)
@@ -73,9 +97,19 @@
         }
         return true
       },
-      itemAdded(item) {
-        this.items.push(item)
+      itemAdded() {
+        this.$refs.itemsTable.refresh()
       },
+      itemsProvider() {
+        return this.itemsPromise()
+        .then(response => {
+          return response.data
+        })
+        .catch(err => {
+          this.error = `An error occurred while loading the data: ${err}`
+          return []
+        })
+      }
     },
     props: {
       deleteItemPromise: Function,
@@ -105,7 +139,7 @@
       },
       primaryKey: {
         type: String,
-        required: true,
+        default: "id",
       },
       controlFilter: {
         type: Array,
@@ -113,16 +147,6 @@
           return []
         },
       }
-    },
-    mounted() {
-      this.itemsPromise()
-      .then(response => {
-        this.items = response.data
-      })
-      .catch(err => {
-        console.log(err)
-        this.error = `An error occurred while loading the data: ${err}`
-      })
     },
   }
 </script>
