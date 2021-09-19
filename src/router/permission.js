@@ -2,7 +2,7 @@ import List from '@/views/permission/List.vue'
 
 const routes = [
   {
-    path: '/permission',
+    path: '/permissions',
     name: 'PermissionList',
     component: List,
   },

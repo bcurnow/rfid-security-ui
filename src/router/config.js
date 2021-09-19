@@ -4,7 +4,7 @@ const routes = [
   {
     component: List,
     name: 'ConfigList',
-    path: '/config',
+    path: '/configs',
   },
 ]
 
