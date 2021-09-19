@@ -1,7 +1,7 @@
 import api from './Base.js'
 import combineURLs from 'axios/lib/helpers/combineURLs.js'
 
-const BASE_URL = '/permission'
+const BASE_URL = '/permissions'
 
 const svc = {
   api: api,

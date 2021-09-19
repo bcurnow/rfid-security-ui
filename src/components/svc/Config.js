@@ -1,7 +1,7 @@
 import api from './Base.js'
 import combineURLs from 'axios/lib/helpers/combineURLs.js'
 
-const BASE_URL = '/config'
+const BASE_URL = '/configs'
 
 const svc = {
   api: api,
