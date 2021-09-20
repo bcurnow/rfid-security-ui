@@ -18,7 +18,7 @@
             <b-icon icon="file-lock" class="mr-1"></b-icon>
             Media
           </b-nav-item>
-          <b-nav-item to="/permission">
+          <b-nav-item to="/permissions">
             <b-icon icon="lock-fill" class="mr-1"></b-icon>
             Permissions
           </b-nav-item>
@@ -26,9 +26,13 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item to="/config">
+          <b-nav-item to="/configs">
             <b-icon icon="gear" class="mr-1"></b-icon>
-            Config
+            Configs
+          </b-nav-item>
+          <b-nav-item to="/sounds">
+            <b-icon icon="music-note-list" class="mr-1"></b-icon>
+            Sounds
           </b-nav-item>
         </b-navbar-nav>
       </b-collapse>
