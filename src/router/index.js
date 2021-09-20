@@ -4,6 +4,7 @@ import Home from '@/views/Home.vue'
 import configRoutes from './config.js'
 import mediaRoutes from './media.js'
 import permissionRoutes from './permission.js'
+import soundRoutes from './sound.js'
 
 Vue.use(VueRouter)
 
@@ -18,6 +19,7 @@ const routes = [
 routes.push(...configRoutes)
 routes.push(...mediaRoutes)
 routes.push(...permissionRoutes)
+routes.push(...soundRoutes)
 
 const router = new VueRouter({
   mode: 'history',
