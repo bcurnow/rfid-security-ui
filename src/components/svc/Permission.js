@@ -18,7 +18,8 @@ const svc = {
     return api.get(BASE_URL, {})
   },
   update: function(pk, name, desc) {
-    return api.put(combineURLs(BASE_URL, String(name)), {
+    return api.put(combineURLs(BASE_URL, String(pk)), {
+      name: name,
       desc: desc,
     })
   }
