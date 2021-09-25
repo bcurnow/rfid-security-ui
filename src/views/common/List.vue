@@ -1,6 +1,5 @@
 <template>
   <div class="container text-left">
-    <b-button class="mb-1" size="md" v-b-modal.item-details variant="primary" @click="createItem" pill><b-icon icon="plus-circle-fill"></b-icon> Add</b-button>
     <div class="row">
       <div class="col-sm">
         <b-table
@@ -14,10 +13,17 @@
           show-empty
           ref="itemsTable"
           head-row-variant="primary"
-          sort-icon-left
+          caption-top
           hover
           no-provider-sorting
-          no-provider-filtering>
+          no-provider-filtering
+          sort-icon-left>
+          <template #table-caption>
+            <slot name="caption"></slot>
+            <slot name="addButton">
+              <b-button class="mb-1" size="md" v-b-modal.item-details variant="primary" @click="createItem" v-if="hasCreateFunction" pill><b-icon icon="plus-circle-fill"></b-icon> Add</b-button>
+            </slot>
+          </template>
           <template #table-busy>
             <div class="text-center text-primary my-2">
               <b-spinner class="align-middle"></b-spinner>
@@ -26,8 +32,8 @@
           </template>
           <template #cell(controls)="controlsProps">
             <div class="text-nowrap text-right">
-              <slot name="standardControls" v-if="includeControls(controlsProps.item[primaryKey])">
-                  <b-button size="sm" class="ml-1" v-b-modal.item-details variant="primary" @click="editItem(controlsProps.item)" v-b-tooltip="{ title: 'Edit', variant: 'primary' }" pill><b-icon icon="pencil"></b-icon></b-button>
+              <slot name="standardControls" :item="controlsProps.item" v-if="includeControls(controlsProps.item[primaryKey])">
+                  <b-button size="sm" class="ml-1" v-b-modal.item-details variant="primary" @click="editItem(controlsProps.item)" v-if="hasUpdateFunction" v-b-tooltip="{ title: 'Edit', variant: 'primary' }" pill><b-icon icon="pencil"></b-icon></b-button>
                   <b-button size="sm" class="ml-1" variant="danger" @click="handleDelete(controlsProps.item)" v-if="hasDeleteFunction" v-b-tooltip="{ title: 'Delete', variant: 'danger' }" pill><b-icon icon="dash-circle-fill"></b-icon></b-button>
               </slot>
               <slot name="customControls" :item="controlsProps.item" v-if="includeControls(controlsProps.item[primaryKey])">
@@ -38,10 +44,16 @@
         <b-alert :show="hasError" variant="danger" fade dismissible>{{ tableError }}</b-alert>
       </div>
     </div>
-    <b-modal id="item-details" :title="itemDetailsTitle" @show="resetModal" @hidden="resetModal" @ok="handleModalOk">
-      <form ref="itemDetailsForm">
-        <slot name="formGroups" :item="selected" :isNew="isNew"></slot>
-      </form>
+    <b-modal id="item-details" :title="itemDetailsTitle" @show="showModal" @ok="handleModalOk" :ok-disabled="isModalOkDisabled">
+      <div class="text-center text-info my-2" v-show="modalLoading">
+        <b-spinner class="align-middle"></b-spinner>
+        <strong>Loading...</strong>
+      </div>
+      <div ref="modalForm" v-show="!modalLoading">
+        <form ref="itemDetailsForm">
+          <slot name="formGroups" :item="selected" :isNew="isNew"></slot>
+        </form>
+      </div>
     </b-modal>
   </div>
 </template>
@@ -53,11 +65,20 @@
       emptyMessage: function() {
         return `No ${this.itemType}[s] found`
       },
+      hasCreateFunction: function() {
+        return this.createItemPromise || this.submitHandler
+      },
       hasDeleteFunction: function() {
-        return this.deleteItemPromise && this.itemType
+        return this.deleteItemPromise
       },
       hasError: function() {
         return this.tableError != null
+      },
+      hasUpdateFunction: function() {
+        return this.updateItemPromise
+      },
+      isModalOkDisabled: function() {
+        return this.modalOkDisabled()
       },
       itemDetailsTitle: function() {
         return `${this.itemType} Details`
@@ -65,9 +86,10 @@
     },
     data() {
       return {
-        tableError: null,
         isNew: false,
+        modalLoading: true,
         selected: {},
+        tableError: null,
       }
     },
     methods: {
@@ -114,7 +136,7 @@
           return
         }
 
-        this.handleItemDetailsFormSubmit()
+        this.submitHandler('item-details', this.refreshItems)
       },
       handleItemDetailsFormSubmit() {
         if (this.isNew) {
@@ -156,17 +178,18 @@
       refreshItems() {
         this.$refs.itemsTable.refresh()
       },
-      resetModal() {
+      showModal() {
+        this.modalLoading = true
         for (const property in this.validationStates) {
           this.validationStates[property] = null
         }
+        this.showModalCallback(() => {
+          this.modalLoading = false
+        })
       },
     },
     props: {
-      createItemPromise: {
-        type: Function,
-        required: true,
-      },
+      createItemPromise: Function,
       deleteItemPromise: Function,
       fields: {
         type: Array,
@@ -182,7 +205,16 @@
         type: Function,
         required: true,
       },
-      itemType: String,
+      itemType: {
+        type: String,
+        required: true,
+      },
+      modalOkDisabled: {
+        type: Function,
+        default: function() {
+          return false
+        },
+      },
       noControlsForPKs: {
         type: Array,
         default: function() {
@@ -193,10 +225,19 @@
         type: String,
         default: "id",
       },
-      updateItemPromise: {
+      showModalCallback: {
         type: Function,
-        required: true,
+        default: function(finishedCallback) {
+          finishedCallback()
+        },
       },
+      submitHandler: {
+        type: Function,
+        default: function() {
+          this.handleItemDetailsFormSubmit()
+        },
+      },
+      updateItemPromise: Function,
       validationStates: {
         type: Object,
         required: true,
