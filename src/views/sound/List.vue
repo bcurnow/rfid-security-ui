@@ -1,37 +1,24 @@
 <template>
   <div class="container text-left">
     <item-list
+      :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
-      :errorResolver="errorResolver"
       :fields="fields"
       :itemsPromise="itemsPromise"
-      :itemType="itemType"
-      :primaryKey="primaryKey"
-    >
-      <template v-slot:detailsModal="detailsModalProps">
-        <item-details
-          :createItemPromise="createItemPromise"
-          :errorResolver="errorResolver"
-          :isNew="detailsModalProps.isNew"
-          :itemAddedCallback="detailsModalProps.itemAdded"
-          :itemType="itemType"
-          :primaryKey="primaryKey"
-          :selected="detailsModalProps.selected"
-          :updateItemPromise="updateItemPromise"
-          :validationStates="validationStates"
-        >
-          <template v-slot:itemFormGroups>
-            <b-form-group label="Name:" label-for="name-input" invalid-feedback="A name is required!">
-              <b-form-input id="name-input" ref="nameInput" v-model="detailsModalProps.selected.name" :state="validationStates.nameState" placeholder="Name" required></b-form-input>
-            </b-form-group>
-            <b-form-group label="Sound File:" label-for="file-input" invalid-feedback="A sound file is required!">
-              <b-form-file id="file-input" v-model="uploadFile" :state="validationStates.fileState" accept="audio/wav" :required="detailsModalProps.isNew" @change="inputFileChanged(detailsModalProps.selected)"></b-form-file>
-            </b-form-group>
-          </template>
-        </item-details>
+      itemType="Sound"
+      primaryKey="name"
+      :updateItemPromise="updateItemPromise"
+      :validationStates="validationStates">
+      <template v-slot:formGroups="formGroupsProps">
+        <b-form-group label="Name:" label-for="name-input" invalid-feedback="A name is required!">
+          <b-form-input id="name-input" ref="nameInput" v-model="formGroupsProps.item.name" :state="validationStates.nameState" placeholder="Name" required></b-form-input>
+        </b-form-group>
+        <b-form-group label="Sound File:" label-for="file-input" invalid-feedback="A sound file is required!">
+          <b-form-file id="file-input" ref="fileInput" v-model="formGroupsProps.item.uploadFile" :state="validationStates.fileState" accept="audio/wav" :required="formGroupsProps.isNew" @input="uploadFileChanged(formGroupsProps.item)"></b-form-file>
+        </b-form-group>
       </template>
-      <template v-slot:customControls="data">
-        <b-button size="sm" class="ml-1" v-b-modal.sound-player variant="primary" @click="playSound(data.item)" v-b-tooltip="{ title: 'Play', variant: 'primary' }" pill><b-icon icon="play"></b-icon></b-button>
+      <template v-slot:customControls="customControlsProps">
+        <b-button size="sm" class="ml-1" v-b-modal.sound-player variant="primary" @click="playSound(customControlsProps.item)" v-b-tooltip="{ title: 'Play', variant: 'primary' }" pill><b-icon icon="play"></b-icon></b-button>
       </template>
     </item-list>
     <b-modal id="sound-player" title="Sound Player" ok-only>
@@ -46,16 +33,13 @@
 </template>
 <script>
   import List from '../common/List'
-  import Details from '../common/Details'
 
   export default {
     components: {
       'item-list': List,
-      'item-details': Details,
     },
     data() {
       return {
-        errorResolver: this.$RFIDSecuritySvc.errorToString,
         fields: [
           {
             key: 'name',
@@ -66,10 +50,7 @@
             label: '',
           }
         ],
-        itemType: "Sound",
-        primaryKey: "name",
         url: null,
-        uploadFile: null,
         validationStates: {
           nameState: null,
           fileState: null,
@@ -80,20 +61,17 @@
       createItemPromise: function(item) {
         let formData = new FormData()
         formData.append('name', item.name)
-        formData.append('content', this.uploadFile)
+        formData.append('content', item.uploadFile)
         return this.$RFIDSecuritySvc.sound.create(formData)
       },
       deleteItemPromise: function(item) {
         return this.$RFIDSecuritySvc.sound.delete(item.name)
       },
-      inputFileChanged() {
-        this.$nextTick()
-        .then(() => {
-          if (this.$refs.nameInput.value == "") {
-            // I'm not sure this is the best way to do this but it does work
-            let el = document.getElementById('name-input')
-            el.value = this.uploadFile.name
-            el.dispatchEvent(new Event('input'));
+      uploadFileChanged(item) {
+        this.$nextTick(() => {
+          if (!item.name || item.name == "") {
+            // Set the name of the sound to the file name
+            this.$set(item, 'name', item.uploadFile.name)
           }
         })
       },
@@ -109,8 +87,8 @@
       updateItemPromise: function(item) {
         let formData = new FormData()
         formData.append('name', item.name)
-        if (this.uploadFile != null) {
-          formData.append('content', this.uploadFile)
+        if (item.uploadFile != null) {
+          formData.append('content', item.uploadFile)
         }
         return this.$RFIDSecuritySvc.sound.update(item.id, formData)
       }

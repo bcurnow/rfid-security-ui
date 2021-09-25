@@ -1,54 +1,39 @@
 <template>
   <div class="container text-left">
     <item-list
+      :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
-      :errorResolver="errorResolver"
       :fields="fields"
       :itemsPromise="itemsPromise"
-      :itemType="itemType"
-      :primaryKey="primaryKey"
-    >
-      <template v-slot:detailsModal="detailsModalProps">
-        <item-details
-          :createItemPromise="createItemPromise"
-          :errorResolver="errorResolver"
-          :isNew="detailsModalProps.isNew"
-          :itemAddedCallback="detailsModalProps.itemAdded"
-          :itemType="itemType"
-          :primaryKey="primaryKey"
-          :selected="detailsModalProps.selected"
-          :updateItemPromise="updateItemPromise"
-          :validationStates="validationStates"
-        >
-          <template v-slot:itemFormGroups>
-            <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
-              <b-form-input id="key-input" v-model="detailsModalProps.selected.key" v-if="!detailsModalProps.isNew" plaintext></b-form-input>
-              <b-form-input id="key-input" v-model="detailsModalProps.selected.key" v-if="detailsModalProps.isNew" :state="validationStates.keyState" placeholder="Config Key" required></b-form-input>
-            </b-form-group>
-            <b-form-group label="Value:" label-for="value-input" invalid-feedback="A configuration value is required!">
-              <b-form-input id="value-input" v-model="detailsModalProps.selected.value" :state="validationStates.valueState" placeholder="Config Value" required></b-form-input>
-            </b-form-group>
-          </template>
-        </item-details>
+      itemType="Configuration"
+      :noControlsForPKs="noControlsForPKs"
+      primaryKey="key"
+      :updateItemPromise="updateItemPromise"
+      :validationStates="validationStates">
+      <template v-slot:formGroups="formGroupsProps">
+        <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
+          <b-form-input id="key-input" v-model="formGroupsProps.item.key" v-if="!formGroupsProps.isNew" plaintext></b-form-input>
+          <b-form-input id="key-input" v-model="formGroupsProps.item.key" v-if="formGroupsProps.isNew" :state="validationStates.keyState" placeholder="Config Key" required></b-form-input>
+        </b-form-group>
+        <b-form-group label="Value:" label-for="value-input" invalid-feedback="A configuration value is required!">
+          <b-form-input id="value-input" v-model="formGroupsProps.item.value" :state="validationStates.valueState" placeholder="Config Value" required></b-form-input>
+        </b-form-group>
       </template>
     </item-list>
   </div>
 </template>
 <script>
   import List from '../common/List'
-  import Details from '../common/Details'
 
   export default {
     components: {
       'item-list': List,
-      'item-details': Details,
     },
     data() {
       return {
-        controlFilter: [
+        noControlsForPKs: [
           'ADMIN_API_KEY',
         ],
-        errorResolver: this.$RFIDSecuritySvc.errorToString,
         fields: [
           {
             key: 'key',
@@ -64,8 +49,6 @@
             label: '',
           }
         ],
-        itemType: "Configuration",
-        primaryKey: "key",
         validationStates: {
           keyState: null,
           valueState: null,
