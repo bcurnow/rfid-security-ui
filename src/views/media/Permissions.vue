@@ -11,7 +11,7 @@
       :submitHandler="handleSubmit"
       :validationStates="validationStates">
       <template v-slot:caption>
-        <h1 class="text-center">Permissions for {{ $route.params.mediaId }}:</h1>
+        <h1 class="text-center">{{ tableCaption }}</h1>
       </template>
       <template v-slot:formGroups>
         <b-alert show variant="danger" v-if="modalError" dismissible>{{ modalError }}</b-alert>
@@ -37,6 +37,14 @@
     components: {
       'item-list': List,
     },
+    computed: {
+      tableCaption: function() {
+        if (this.mediaName) {
+          return `Permissions for ${this.mediaName} (${this.$route.params.mediaId}):`
+        }
+        return `Permissions for ${this.$route.params.mediaId}:`
+      },
+    },
     data() {
       return {
         allPermissions: [],
@@ -52,6 +60,7 @@
             label: '',
           }
         ],
+        mediaName: null,
         modalError: "",
         showAllPermsAlert: false,
         selected: [],
@@ -134,5 +143,15 @@
         })
       },
     },
+    mounted() {
+      this.mediaName = null
+      this.$RFIDSecuritySvc.media.get(this.$route.params.mediaId)
+      .then(response => {
+        this.mediaName = response.data.name
+      })
+      .catch(() => {
+        this.mediaName = null
+      })
+    }
   }
 </script>
