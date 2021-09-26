@@ -46,6 +46,11 @@
             sortable: true,
           },
           {
+            key: 'last_update_timestamp',
+            label: 'Last Updated',
+            sortable: true,
+          },
+          {
             key: 'controls',
             label: '',
           }
