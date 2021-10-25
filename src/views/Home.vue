@@ -1,5 +1,5 @@
 <template>
   <div>
-    <p>Welcome to RFID Security Manager!</p>
+    <h3>Welcome to RFID Security Manager!</h3>
   </div>
 </template>
