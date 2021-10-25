@@ -6,11 +6,13 @@ const routes = [
     path: '/media',
     name: 'MediaList',
     component: List,
-  },
-  {
-    path: '/media/:mediaId/permissions',
-    name: 'MediaPermissions',
-    component: Permissions,
+    children: [
+      {
+        path: ':mediaId/permissions',
+        name: 'MediaPermissions',
+        component: Permissions,
+      },
+    ],
   },
 ]
 
