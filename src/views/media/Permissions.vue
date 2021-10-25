@@ -1,32 +1,35 @@
 <template>
   <div class="container text-left">
     <item-list
+      id="MediaPermissions"
+      :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
+      disableFiltering
       :fields="fields"
       :itemsPromise="itemsPromise"
       :itemToDisplayString="itemToDisplayString"
       itemType="Media Permission"
-      :modalOkDisabled="isOkDisabled"
+      :modalOkDisabled="() => modalError != '' || hasAllPerms"
+      :primaryKey="'permission.name'"
+      ref="MediaPermissions"
       :showModalCallback="showModal"
-      :submitHandler="handleSubmit"
       :validationStates="validationStates">
-      <template v-slot:caption>
-        <h1 class="text-center">{{ tableCaption }}</h1>
-      </template>
-      <template v-slot:formGroups>
-        <b-alert show variant="danger" v-if="modalError" dismissible>{{ modalError }}</b-alert>
-        <b-alert v-model="showAllPermsAlert" variant="info" dismissible>This media already has all possible permissions.</b-alert>
+      <template #headerMessage>{{ tableCaption }}</template>
+      <template #formGroups>
         <b-form-group label="ID:" label-for="media-id">
-          <b-form-input id="media-id" v-model="$route.params.mediaId" plaintext></b-form-input>
+          <b-form-input id="media-id" v-model="$route.params.mediaId" readonly></b-form-input>
         </b-form-group>
         <b-form-group label="Permission:" label-for="permission-select">
-          <b-form-select id="permission-select" ref="permissions" v-model="selected" :options="allPermissions" :state="validationStates.permissionState" text-field="name" value-field="name" autofocus multiple required>
+          <b-form-select id="permission-select" v-if="!hasAllPerms && !modalError" v-model="selected" :options="allPermissions" :state="validationStates.permission" @invalid="validationStates.permission = false" text-field="name" value-field="id" autofocus multiple required>
             <template #first>
               <b-form-select-option value="" disabled>-- Please select a Permission  --</b-form-select-option>
             </template>
           </b-form-select>
+          <b-alert show variant="danger" v-if="modalError" dismissible>{{ modalError }}</b-alert>
+          <b-alert v-model="hasAllPerms" variant="info">This media already has all possible permissions.</b-alert>
         </b-form-group>
       </template>
+      <template #empty>No permissions found for {{ mediaName}} ({{ $route.params.mediaId }})</template>
     </item-list>
   </div>
 </template>
@@ -48,10 +51,10 @@
     data() {
       return {
         allPermissions: [],
-        disableSelect: false,
+        hasAllPerms: false,
         fields: [
           {
-            key: 'perm_name',
+            key: 'permission.name',
             label: 'Permission',
             sortable: true,
           },
@@ -62,78 +65,91 @@
         ],
         mediaName: null,
         modalError: "",
-        showAllPermsAlert: false,
         selected: [],
         validationStates: {
-          permissionState: null,
+          permission: null,
         }
       }
     },
     methods: {
-      deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.association.delete(item)
-      },
-      isOkDisabled: function() {
-        return this.disableSelect
-      },
-      itemsPromise: function() {
-        return this.$RFIDSecuritySvc.association.get(this.$route.params.mediaId)
-      },
-      handleSubmit(modalName, refreshFunction) {
+      createItemPromise() {
         const creates = []
         const errors = []
         for (const p of this.selected) {
-          const promise = this.$RFIDSecuritySvc.association.create({ media_id: this.$route.params.mediaId, perm_name:  p})
-          promise
-          .catch(err => {
-            errors.push(`Unable to add permission '${p}': ${err}`)
-          })
-          creates.push(promise)
+          creates.push(
+            this.$RFIDSecuritySvc.mediaPerms.create({ media_id: this.$route.params.mediaId, permission_id:  p}).catch(err => errors.push({ permission: p, error: err }))
+          )
         }
 
-        Promise.allSettled(creates)
+        return Promise.allSettled(creates)
         .then(() => {
           if (errors.length > 0) {
             // At least one create failed
-            this.$bvModal.msgBoxOk(errors.join("\n"))
-            if (errors.length != creates.length) {
-              // At least one create succeeded, refresh
-              refreshFunction()
+            const errorMessages = []
+            for (const error of errors) {
+              let permissionName = this.permissionIdToName(error.permission)
+              if (null == permissionName) {
+                permissionName = `id = ${error.permission}`
+              }
+
+              errorMessages.push(this.$createElement('li', {}, [`Unable to add permission '${permissionName}': ${this.$RFIDSecuritySvc.errorToString(error.error)}`]))
             }
-          } else {
-            refreshFunction()
+
+            const container = this.$createElement('div', { class: ['alert', 'alert-danger'] }, [this.$createElement('ul', {}, errorMessages)])
+            this.$bvModal.msgBoxOk([container], {
+              title: 'One or more errors occured while adding permissions',
+            })
           }
-          this.$bvModal.hide(modalName)
         })
       },
-      itemToDisplayString: item => {
-        return item.perm_name
+      deleteItemPromise: function(item) {
+        return this.$RFIDSecuritySvc.mediaPerms.delete(item.id)
       },
-      showModal(finishCallback) {
-        this.showAllPermsAlert = false
-        this.disableSelect = false
+      getMediaName: function(mediaId) {
+        this.$RFIDSecuritySvc.media.get(mediaId)
+        .then(response => this.mediaName = response.data.name)
+        .catch(() => this.mediaName = null)
+      },
+      itemToDisplayString: item => {
+        if (item && item.permission) {
+          return item.permission.name
+        }
+        // This should never happen and if it does, there's a bug somewhere else
+        return "<unknown>"
+      },
+      itemsPromise: function() {
+        return this.$RFIDSecuritySvc.mediaPerms.listByMedia(this.$route.params.mediaId)
+      },
+      permissionIdToName(id) {
+        for (const permission of this.allPermissions) {
+          if (permission.id == id) {
+            return permission.name
+          }
+        }
+        return null
+      },
+      showModal(_, finishCallback) {
+        this.hasAllPerms = false
         this.selected = []
         this.$RFIDSecuritySvc.permission.list()
-        .then(response => {
+        .then(allPermissionsResponse => {
+          this.allPermissions = allPermissionsResponse.data
           this.itemsPromise()
           .then(currentPerms => {
             let disabledCount = 0
-            for (const p of response.data) {
-              if (currentPerms.data.findIndex(currentPerm => currentPerm.perm_name === p.name) > -1) {
+            for (const p of this.allPermissions) {
+              if (currentPerms.data.findIndex(currentPerm => currentPerm.permission.id == p.id) > -1) {
                 disabledCount++
-                p.disabled = true
+                this.$set(p, 'disabled', true)
               }
             }
-            if (disabledCount == response.data.length) {
-              this.showAllPermsAlert = true
-              this.disableSelect = true
-            } else {
-              this.allPermissions = response.data
+            if (disabledCount == this.allPermissions.length) {
+              this.hasAllPerms = true
             }
             finishCallback()
           })
           .catch(()=> {
-            this.allPermissions = response.data
+            this.allPermissions = allPermissionsResponse.data
             finishCallback()
           })
         })
@@ -144,14 +160,13 @@
       },
     },
     mounted() {
-      this.mediaName = null
-      this.$RFIDSecuritySvc.media.get(this.$route.params.mediaId)
-      .then(response => {
-        this.mediaName = response.data.name
-      })
-      .catch(() => {
-        this.mediaName = null
-      })
+      this.mediaName = this.getMediaName(this.$route.params.mediaId)
+    },
+    watch: {
+      '$route'(to) {
+        this.mediaName = this.getMediaName(to.params.mediaId)
+        this.$refs.MediaPermissions.refreshItems()
+      }
     }
   }
 </script>
