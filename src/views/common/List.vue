@@ -93,11 +93,11 @@
             </div>
           </template>
         </b-table>
-        <b-pagination v-if="showPaginationControls" v-model="tableData.currentPage" :per-page="perPage" :total-rows="totalRows" :value="tableData.currentPage"></b-pagination>
-        <b-alert :show="hasError" variant="danger" fade dismissible>{{ tableData.tableError }}</b-alert>
+        <b-pagination v-if="totalRows > perPage" v-model="tableData.currentPage" :per-page="perPage" :total-rows="totalRows" :value="tableData.currentPage"></b-pagination>
+        <b-alert :show="tableData.tableError != null" variant="danger" fade dismissible>{{ tableData.tableError }}</b-alert>
       </div>
     </div>
-    <b-modal :id="this.modalRef" :title="itemDetailsTitle" @show="showModal" @ok="handleModalOk" :ok-disabled="modalOkDisabled()" :ok-only="modalOkOnly()">
+    <b-modal :id="modalRef" :title="`${itemType} Details`" @show="showModal" @ok="handleModalOk" :ok-disabled="modalOkDisabled()" :ok-only="modalOkOnly()">
       <div class="text-center text-info my-2" v-show="modalLoading">
         <b-spinner class="align-middle"></b-spinner>
         <strong>Loading...</strong>
@@ -127,23 +127,11 @@
       hasDeleteFunction: function() {
         return this.deleteItemPromise
       },
-      hasError: function() {
-        return this.tableData.tableError != null
-      },
       hasUpdateFunction: function() {
         return this.updateItemPromise
       },
-      isModalOkDisabled: function() {
-        return this.modalOkDisabled()
-      },
-      itemDetailsTitle: function() {
-        return `${this.itemType} Details`
-      },
       modalRef: function() {
         return `${this.id}Modal`
-      },
-      showPaginationControls: function() {
-        return this.totalRows > this.perPage
       },
       table: function() {
         return this.$refs[this.tableRef]
@@ -179,14 +167,13 @@
         for (const property in this.validationStates) {
           this.validationStates[property] = null
         }
-        const valid = this.$refs.itemDetailsForm.checkValidity()
-        return valid
+        return this.$refs.itemDetailsForm.checkValidity()
       },
       clearSelected() {
         this.table.clearSelected()
       },
       createItem() {
-        // In order to maintain reactivity, we need to ensure that the selected Object
+        // In order to maintain reactivity, we need to ensure that the selected Object is set to something
         this.selected = {}
         this.isNew = true
         this.$bvModal.show(this.modalRef)
@@ -200,15 +187,11 @@
         this.$bvModal.msgBoxConfirm(`Are you sure you want to delete ${this.itemType.toLowerCase()} '${this.itemToDisplayString(item)}'?`, {
           title: `Delete ${this.itemType}?`,
         })
-        .then(value => {
-          if (value) {
+        .then(confirm => {
+          if (confirm) {
             this.deleteItemPromise(item)
-            .then(() => {
-              this.refreshItems()
-            })
-            .catch(err => {
-              this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${this.itemToDisplayString(item)}': ${errorToString(err)}`)
-            })
+            .then(() => this.refreshItems())
+            .catch(err => this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${this.itemToDisplayString(item)}': ${errorToString(err)}`))
           }
         })
       },
@@ -225,25 +208,21 @@
         if (this.isNew) {
           // This is a create
           this.createItemPromise(this.selected)
-          .then(() => {
-            this.afterModalChange()
-          })
+          .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to create ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${this.errorResolver(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to create ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${errorToString(err)}`)
           })
         } else {
           //This is an update
           this.updateItemPromise(this.selected)
-          .then(() => {
-            this.afterModalChange()
-          })
+          .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to update ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${this.errorResolver(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to update ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${errorToString(err)}`)
           })
         }
       },
       includeControls(key) {
-        if (this.noControlsForPKs.findIndex(filterKey => filterKey === key) > -1) {
+        if (this.noControlsForPKs.findIndex(filterKey => filterKey == key) > -1) {
           return false
         }
         return true
@@ -309,12 +288,6 @@
         }
       },
       deleteItemPromise: Function,
-      errorResolver: {
-        type:Function,
-        default: function(err) {
-          return this.$RFIDSecuritySvc.errorToString(err)
-        }
-      },
       disableFiltering: {
         type: Boolean,
         default: false,
