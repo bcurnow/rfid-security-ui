@@ -4,20 +4,21 @@
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
+      id="Permission"
       :itemsPromise="itemsPromise"
       :itemToDisplayString="itemToDisplayString"
       itemType="Permission"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
-      <template v-slot:formGroups="formGroupsProps">
-        <b-form-group label="ID:" label-for="id-input" v-if="!formGroupsProps.isNew">
-          <b-form-input id="id-input" v-model="formGroupsProps.item.id" plaintext></b-form-input>
+      <template #formGroups="props">
+        <b-form-group label="ID:" label-for="id-input" v-if="!props.isNew">
+          <b-form-input id="id-input" v-model="props.item.id" readonly></b-form-input>
         </b-form-group>
         <b-form-group label="Name:" label-for="name-input" invalid-feedback="A permission name is required!">
-          <b-form-input id="name-input" v-model="formGroupsProps.item.name" :state="validationStates.nameState" placeholder="Permission Name" required></b-form-input>
+          <b-form-input id="name-input" v-model="props.item.name" :state="validationStates.name" @invalid="validationStates.name = false" placeholder="Permission Name" required></b-form-input>
         </b-form-group>
         <b-form-group label="Description:" label-for="desc-input">
-          <b-form-input id="desc-input" v-model="formGroupsProps.item.desc" placeholder="Permission Description"></b-form-input>
+          <b-form-input id="desc-input" v-model="props.item.desc" placeholder="Permission Description"></b-form-input>
         </b-form-group>
       </template>
     </item-list>
@@ -46,8 +47,7 @@
           }
         ],
         validationStates: {
-          idState: null,
-          nameState: null,
+          name: null,
         }
       }
     },
