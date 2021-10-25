@@ -8,17 +8,17 @@ const svc = {
   create: function(data) {
     return api.post(BASE_URL, data)
   },
-  delete: function(pk) {
-    return api.delete(combineURLs(BASE_URL, String(pk)), {})
+  delete: function(id) {
+    return api.delete(combineURLs(BASE_URL, String(id)), {})
   },
-  get: function(pk) {
-    return api.get(combineURLs(BASE_URL, String(pk)), {})
+  get: function(id) {
+    return api.get(combineURLs(BASE_URL, String(id)), {})
   },
   list: function() {
     return api.get(BASE_URL, {})
   },
-  update: function(pk, name, desc) {
-    return api.put(combineURLs(BASE_URL, String(pk)), {
+  update: function(id, name, desc) {
+    return api.put(combineURLs(BASE_URL, String(id)), {
       name: name,
       desc: desc,
     })
