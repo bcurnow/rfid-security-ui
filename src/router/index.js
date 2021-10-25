@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import configRoutes from './config.js'
+import guestRoutes from './guests.js'
 import mediaRoutes from './media.js'
 import permissionRoutes from './permission.js'
 import soundRoutes from './sound.js'
@@ -17,6 +18,7 @@ const routes = [
 ]
 
 routes.push(...configRoutes)
+routes.push(...guestRoutes)
 routes.push(...mediaRoutes)
 routes.push(...permissionRoutes)
 routes.push(...soundRoutes)
