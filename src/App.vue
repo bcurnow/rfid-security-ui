@@ -1,16 +1,15 @@
 <template>
   <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="primary" fixed="top" class="font-weight-bold">
-      <b-navbar-brand class="d-flex align-items-center">
-        <b-icon icon="broadcast" font-scale="2" variant="light" class="mr-1"></b-icon>
-        <b-link href="#" class="text-light">RFID Security Manager</b-link>
+      <b-navbar-brand>
+        <b-link to="/" class="d-flex align-items-center text-light"><b-icon icon="broadcast" font-scale="2" variant="light" class="mr-1"></b-icon> RFID Security Manager</b-link>
       </b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item href="#">
+          <b-nav-item to="/guests">
             <b-icon icon="people-fill" class="mr-1"></b-icon>
             Guests
           </b-nav-item>
