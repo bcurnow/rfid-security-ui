@@ -4,39 +4,35 @@
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
+      id="Sound"
       :itemsPromise="itemsPromise"
       itemType="Sound"
       primaryKey="name"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
-      <template v-slot:formGroups="formGroupsProps">
+      <template #formGroups="props">
         <b-form-group label="Name:" label-for="name-input" invalid-feedback="A name is required!">
-          <b-form-input id="name-input" ref="nameInput" v-model="formGroupsProps.item.name" :state="validationStates.nameState" placeholder="Name" required></b-form-input>
+          <b-form-input id="name-input" ref="nameInput" v-model="props.item.name" :state="validationStates.name" @invalid="validationStates.name = false" placeholder="Name" required></b-form-input>
         </b-form-group>
-        <b-form-group label="Sound File:" label-for="file-input" invalid-feedback="A sound file is required!">
-          <b-form-file id="file-input" ref="fileInput" v-model="formGroupsProps.item.uploadFile" :state="validationStates.fileState" accept="audio/wav" :required="formGroupsProps.isNew" @input="uploadFileChanged(formGroupsProps.item)"></b-form-file>
+        <b-form-group label="Sound File:" label-for="file-input" invalid-feedback="A sound file is required!" :state="validationStates.file">
+          <b-form-file id="file-input" ref="fileInput" v-model="props.item.uploadFile" :state="validationStates.file" @invalid="validationStates.file = false" accept="audio/wav" required @input="uploadFileChanged(props.item)"></b-form-file>
         </b-form-group>
       </template>
-      <template v-slot:customControls="customControlsProps">
-        <b-button size="sm" class="ml-1" v-b-modal.sound-player variant="primary" @click="playSound(customControlsProps.item)" v-b-tooltip="{ title: 'Play', variant: 'primary' }" pill><b-icon icon="play"></b-icon></b-button>
+      <template #customControlsPost="props">
+        <b-button size="sm" class="ml-1" v-b-modal.sound-player variant="primary" @click="soundName = props.item.name" v-b-tooltip="{ title: 'Play', variant: 'primary' }" pill><b-icon class="mb-1 mt-1" icon="play"></b-icon></b-button>
       </template>
     </item-list>
-    <b-modal id="sound-player" title="Sound Player" ok-only>
-      <div class="text-center">
-        <audio controls autoplay>
-          <source :src="url" type="audio/wav">
-          Your browser does not support the <code>audio</code> element.
-        </audio>
-      </div>
-    </b-modal>
+    <sound-player :soundName="soundName"></sound-player>
   </div>
 </template>
 <script>
   import List from '../common/List'
+  import SoundPlayer from '../common/SoundPlayer'
 
   export default {
     components: {
       'item-list': List,
+      'sound-player': SoundPlayer,
     },
     data() {
       return {
@@ -55,10 +51,10 @@
             label: '',
           }
         ],
-        url: null,
+        soundName: "",
         validationStates: {
-          nameState: null,
-          fileState: null,
+          name: null,
+          file: null,
         }
       }
     },
@@ -70,7 +66,7 @@
         return this.$RFIDSecuritySvc.sound.create(formData)
       },
       deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.sound.delete(item.name)
+        return this.$RFIDSecuritySvc.sound.delete(item.id)
       },
       uploadFileChanged(item) {
         this.$nextTick(() => {
@@ -82,12 +78,6 @@
       },
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.sound.list()
-      },
-      playSound(item) {
-        this.url = this.playerUrl(item)
-      },
-      playerUrl(item) {
-        return this.$RFIDSecuritySvc.player.url(item.name)
       },
       updateItemPromise: function(item) {
         let formData = new FormData()
