@@ -1,7 +1,6 @@
 <template>
   <div class="container text-left">
     <item-list
-      id="Media"
       :createItemPromise="createItemPromise"
       :customRenderFields="customRenderFields"
       :deleteItemPromise="deleteItemPromise"
@@ -94,7 +93,7 @@
         return this.$RFIDSecuritySvc.media.list()
       },
       mediaSelected: function(selectedRows) {
-        if (selectedRows.length == 0) {
+        if (selectedRows.length === 0) {
           if (this.$route.name != 'MediaList') {
             this.$router.push({ name: 'MediaList' })
           }
@@ -125,7 +124,7 @@
         })
       },
       selectRow(props) {
-        if (props.item.id == this.$route.params.mediaId) {
+        if (props.item.id === this.$route.params.mediaId) {
           props.selectRow(props.index)
         }
         return props.item.id
@@ -136,7 +135,7 @@
     },
     watch: {
       '$route'(to) {
-        if (to.name == 'MediaList') {
+        if (to.name === 'MediaList') {
           this.$refs.Media.clearSelected()
         }
       }
