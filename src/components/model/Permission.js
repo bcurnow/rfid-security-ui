@@ -10,6 +10,10 @@ class Permission extends BaseModel {
     this.name = api.name
     this.desc = api.desc
   }
+
+  displayIdentifier() {
+    return this.name
+  }
 }
 
 export default Permission
