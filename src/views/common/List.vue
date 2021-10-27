@@ -195,14 +195,14 @@
         this.$bvModal.show(this.modalRef)
       },
       handleDelete(item) {
-        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete ${this.itemClass.type.toLowerCase()} '${item.displayIdentifier()}'?`, {
+        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete ${this.itemClass.type.toLowerCase()} ${item.displayIdentifier()}?`, {
           title: `Delete ${this.itemClass.type}?`,
         })
         .then(confirm => {
           if (confirm) {
             this.deleteItemPromise(item)
             .then(() => this.refreshItems())
-            .catch(err => this.$bvModal.msgBoxOk(`Unable to delete ${this.itemClass.type.toLowerCase()} '${item.displayIdentifier()}': ${errorToString(err)}`))
+            .catch(err => this.$bvModal.msgBoxOk(`Unable to delete ${this.itemClass.type.toLowerCase()} ${item.displayIdentifier()}: ${errorToString(err)}`))
           }
         })
       },
@@ -218,14 +218,14 @@
           this.createItemPromise(this.selected)
           .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to create ${this.itemClass.type.toLowerCase()} '${this.selected.displayIdentifier()}': ${errorToString(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to create ${this.itemClass.type.toLowerCase()} ${this.selected.displayIdentifier()}: ${errorToString(err)}`)
           })
         } else {
           //This is an update
           this.updateItemPromise(this.selected)
           .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to update ${this.itemClass.type.toLowerCase()} '${this.selected.displayIdentifier()}': ${errorToString(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to update ${this.itemClass.type.toLowerCase()} ${this.selected.displayIdentifier()}: ${errorToString(err)}`)
           })
         }
       },
