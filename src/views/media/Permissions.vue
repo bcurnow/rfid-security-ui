@@ -1,7 +1,6 @@
 <template>
   <div class="container text-left">
     <item-list
-      id="MediaPermissions"
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       disableFiltering
@@ -88,7 +87,7 @@
             const errorMessages = []
             for (const error of errors) {
               let permissionName = this.permissionIdToName(error.permission)
-              if (null == permissionName) {
+              if (null === permissionName) {
                 permissionName = `id = ${error.permission}`
               }
 
@@ -122,7 +121,7 @@
       },
       permissionIdToName(id) {
         for (const permission of this.allPermissions) {
-          if (permission.id == id) {
+          if (permission.id === id) {
             return permission.name
           }
         }
@@ -138,12 +137,12 @@
           .then(currentPerms => {
             let disabledCount = 0
             for (const p of this.allPermissions) {
-              if (currentPerms.data.findIndex(currentPerm => currentPerm.permission.id == p.id) > -1) {
+              if (currentPerms.data.findIndex(currentPerm => currentPerm.permission.id === p.id) > -1) {
                 disabledCount++
                 this.$set(p, 'disabled', true)
               }
             }
-            if (disabledCount == this.allPermissions.length) {
+            if (disabledCount === this.allPermissions.length) {
               this.hasAllPerms = true
             }
             finishCallback()
