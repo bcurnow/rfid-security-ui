@@ -4,9 +4,8 @@
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
+      :itemClass="itemClass"
       :itemsPromise="itemsPromise"
-      itemType="Sound"
-      primaryKey="name"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
       <template #formGroups="props">
@@ -14,7 +13,7 @@
           <b-form-input id="name-input" ref="nameInput" v-model="props.item.name" :state="validationStates.name" @invalid="validationStates.name = false" placeholder="Name" required></b-form-input>
         </b-form-group>
         <b-form-group label="Sound File:" label-for="file-input" invalid-feedback="A sound file is required!" :state="validationStates.file">
-          <b-form-file id="file-input" ref="fileInput" v-model="props.item.uploadFile" :state="validationStates.file" @invalid="validationStates.file = false" accept="audio/wav" required @input="uploadFileChanged(props.item)"></b-form-file>
+          <b-form-file id="file-input" ref="fileInput" v-model="props.item.uploadFile" :state="validationStates.file" @invalid="validationStates.file = false" accept="audio/wav" :required="props.isNew" @input="uploadFileChanged(props.item)"></b-form-file>
         </b-form-group>
       </template>
       <template #customControlsPost="props">
@@ -26,6 +25,7 @@
 </template>
 <script>
   import List from '../common/List'
+  import {Sound} from '@/components/svc/Sound.js'
   import SoundPlayer from '../common/SoundPlayer'
 
   export default {
@@ -41,7 +41,7 @@
             sortable: true,
           },
           {
-            key: 'last_update_timestamp',
+            key: 'lastUpdateTimestamp',
             label: 'Last Updated',
             sortable: true,
           },
@@ -50,6 +50,7 @@
             label: '',
           }
         ],
+        itemClass: Sound,
         soundName: "",
         validationStates: {
           name: null,
