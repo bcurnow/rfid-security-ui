@@ -8,11 +8,11 @@
           :current-page="tableData.currentPage"
           :fields="fields"
           :filter="tableData.filter"
+          @filtered="onFiltered"
           head-row-variant="primary"
           hover
           :id="tableRef"
           :items="itemsProvider"
-          no-provider-filtering
           no-provider-sorting
           :per-page="perPage"
           :primary-key="itemClass.primarykey"
@@ -50,7 +50,7 @@
                     <slot name="thead-filter">
                       <b-form-group class="mb-0" label="Filter" label-for="filter-input" label-cols="auto" label-size="sm">
                         <b-input-group size="sm">
-                          <b-form-input id="filter-input" v-model="tableData.filter" type="search" placeholder="Type to Search"></b-form-input>
+                          <b-form-input id="filter-input" v-model="tableData.filter" type="search" placeholder="Type to Search" debounce="1000"></b-form-input>
                           <b-input-group-append>
                             <b-button :disabled="!tableData.filter" @click="tableData.filter = ''">Clear</b-button>
                           </b-input-group-append>
@@ -93,7 +93,7 @@
             </div>
           </template>
         </b-table>
-        <b-pagination v-if="totalRows > perPage" v-model="tableData.currentPage" :per-page="perPage" :total-rows="totalRows" :value="tableData.currentPage"></b-pagination>
+        <b-pagination v-if="tableData.totalRows > perPage" v-model="tableData.currentPage" :per-page="perPage" :total-rows="tableData.totalRows" :value="tableData.currentPage"></b-pagination>
         <b-alert :show="tableData.errorMessage != null" variant="danger" fade dismissible>{{ tableData.errorMessage }}</b-alert>
       </div>
     </div>
@@ -139,18 +139,16 @@
       tableRef: function() {
         return `${this.itemClass.type.replace(/ /g, "")}Table`
       },
-      totalRows: function() {
-        return this.tableData.items.length
-      }
     },
     data() {
       return {
         tableData: {
           currentPage: 1,
+          errorMessage: null,
           filter: '',
           items: [],
           retrieveItems: true,
-          errorMessage: null,
+          totalRows: 0,
         },
         isNew: false,
         modalLoading: true,
@@ -171,6 +169,18 @@
       },
       clearSelected() {
         this.table.clearSelected()
+      },
+      convertToString(value) {
+        if (value === null || typeof value === 'undefined') {
+          return ''
+        } else if (value instanceof Object) {
+          return Object.keys(value)
+            .sort()
+            .map(key => this.convertToString(value[key]))
+            .join(' ')
+        } else {
+          return String(value)
+        }
       },
       createItem() {
         // In order to maintain reactivity, we need to ensure that the selected Object is set to something
@@ -229,28 +239,44 @@
       isRowSelected(index) {
         this.table.isRowSelected(index)
       },
-      itemsProvider(ctx) {
+      async itemsProvider(ctx) {
         if (this.tableData.retrieveItems) {
-          return this.itemsPromise()
-          .then(response => {
+          try {
+            const response = await this.itemsPromise()
             this.tableData.items = response
             this.tableData.retrieveItems = false
-            return this.itemsProviderApplyContext(this.tableData, ctx)
-          })
-          .catch(err => {
+          } catch(err) {
             this.tableData.errorMessage = `An error occurred while loading the data: ${errorToString(err)}`
-            return []
-          })
-        } else {
-          return this.itemsProviderApplyContext(this.tableData, ctx)
+            this.tableData.items = []
+            // Don't reset retrieveItems since we failed
+          }
         }
+
+        // At this point, tableData.items has the correct set of items
+        // Reset the total rows to the full count (in case filtering had been applied)
+        this.tableData.totalRows = this.tableData.items.length
+        return this.itemsProviderApplyContext(ctx)
       },
-      itemsProviderApplyContext(tableData, ctx) {
-        // TODO: Implement pagination on the server side
+      itemsProviderApplyContext(ctx) {
+        // Apply filtering of the list first, then pagination
+        const items = this.itemsProviderFilter(ctx)
+        // TODO: Implement pagination on the server side (maybe? we don't have a lot of data)
         let sliceStart = (ctx.currentPage - 1) * ctx.perPage
         let sliceEnd = sliceStart + ctx.perPage
 
-        return tableData.items.slice(sliceStart, sliceEnd)
+        return items.slice(sliceStart, sliceEnd)
+      },
+      itemsProviderFilter(ctx) {
+        if (ctx.filter === null || ctx.filter === '') {
+          // No filter, return the data unmodified
+          return this.tableData.items
+        }
+        return this.tableData.items.filter(item => this.convertToString(item).includes(ctx.filter))
+      },
+      onFiltered(_, length) {
+        // Reset the pagination properties to reflect the filtering
+        this.tableData.totalRows = length
+        this.tableData.currentPage = 1
       },
       refreshItems() {
         this.tableData.retrieveItems = true
