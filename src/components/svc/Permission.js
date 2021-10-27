@@ -26,7 +26,8 @@ const svc = {
   },
   get: async function(id) {
     const response = await api.get(combineURLs(BASE_URL, id), {})
-    return new Permission(response.data)  },
+    return new Permission(response.data)
+  },
   list: async function() {
     const response = await api.get(BASE_URL, {})
     return response.data.map(api => new Permission(api))
