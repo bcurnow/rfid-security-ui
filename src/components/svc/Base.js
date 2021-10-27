@@ -1,6 +1,23 @@
 import axios from "axios";
 import config from '@/config'
 
+export class BaseModel {
+  static type = 'BaseModel'
+  static primaryKey = 'id'
+
+  isControllable() {
+    return true
+  }
+
+  displayIdentifier() {
+    return this[this.constructor.primaryKey]
+  }
+
+  toString() {
+    return `${this.constructor.type} ${JSON.stringify(this)}`
+  }
+}
+
 const axiosInstance = axios.create({
       baseURL: config.apiUrl,
       timeout: 10 * 1000,
