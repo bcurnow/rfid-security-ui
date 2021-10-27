@@ -5,8 +5,7 @@
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
       :itemsPromise="itemsPromise"
-      :itemToDisplayString="itemToDisplayString"
-      itemType="Permission"
+      :itemClass="itemClass"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
       <template #formGroups="props">
@@ -25,6 +24,7 @@
 </template>
 <script>
   import List from '../common/List'
+  import {Permission} from '@/components/svc/Permission.js'
 
   export default {
     components: {
@@ -45,6 +45,7 @@
             label: '',
           }
         ],
+        itemClass: Permission,
         validationStates: {
           name: null,
         }
