@@ -5,10 +5,8 @@
       :customRenderFields="customRenderFields"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
+      :itemClass="itemClass"
       :itemsPromise="itemsPromise"
-      :itemToDisplayString="itemToDisplayString"
-      itemType="Media"
-      ref="Media"
       :rowSelected="mediaSelected"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
@@ -20,6 +18,12 @@
         {{ selectRow(props) }}
       </template>
       <template #formGroups="props">
+        <b-form-group label="Name:" label-for="name-input" invalid-feedback="A media name is required!">
+          <b-form-input id="name-input" v-model="props.item.name" :state="validationStates.name" placeholder="Media Name" @invalid="validationStates.name = false" required></b-form-input>
+        </b-form-group>
+        <b-form-group label="Description:" label-for="desc-input">
+          <b-form-textarea id="desc-input" v-model="props.item.desc" placeholder="Media Description"></b-form-textarea >
+        </b-form-group>
         <b-form-group label="UUID:" label-for="id-input" invalid-feedback="A media UUID is required!" :state="validationStates.id">
           <b-input-group>
             <b-form-input id="id-input" v-model="props.item.id" v-if="!props.isNew" readonly></b-form-input>
@@ -31,12 +35,6 @@
           <b-toast id="readingToast" variant="info" toaster="readingToaster" static solid no-close-button no-auto-hide>Please place the media near the reader</b-toast>
           <b-toast id="readingErrorToast" variant="danger" toaster="readingToaster" static solid no-close-button no-auto-hide>{{ mediaReadError }}</b-toast>
         </b-form-group>
-        <b-form-group label="Name:" label-for="name-input" invalid-feedback="A media name is required!">
-          <b-form-input id="name-input" v-model="props.item.name" :state="validationStates.name" placeholder="Media Name" @invalid="validationStates.name = false" required></b-form-input>
-        </b-form-group>
-        <b-form-group label="Description:" label-for="desc-input">
-          <b-form-textarea id="desc-input" v-model="props.item.desc" placeholder="Media Description"></b-form-textarea >
-        </b-form-group>
       </template>
       <template #emptyfiltered>No media found with current filter settings</template>
     </item-list>
@@ -45,6 +43,7 @@
 </template>
 <script>
   import List from '../common/List'
+  import {Media} from '@/components/svc/Media.js'
 
   export default {
     components: {
@@ -53,7 +52,6 @@
     data() {
       return {
         customRenderFields: ['id'],
-        errorResolver: this.$RFIDSecuritySvc.errorToString,
         fields: [
           {
             key: 'name',
@@ -72,6 +70,7 @@
             label: '',
           }
         ],
+        itemClass: Media,
         mediaReadError: "",
         validationStates: {
           id: null,
