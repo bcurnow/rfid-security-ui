@@ -1,28 +1,28 @@
 <template>
-  <div class="container text-left">
+  <div class='container text-left'>
     <item-list
-      :createItemPromise="createItemPromise"
-      :deleteItemPromise="deleteItemPromise"
-      :fields="fields"
-      :itemClass="itemClass"
-      :itemsPromise="itemsPromise"
-      :modalOkDisabled="() => modalError != '' || hasAllPerms"
-      ref="MediaPermissions"
-      :showModalCallback="showModal"
-      :validationStates="validationStates">
+      :createItemPromise='createItemPromise'
+      :deleteItemPromise='deleteItemPromise'
+      :fields='fields'
+      :itemClass='itemClass'
+      :itemsPromise='itemsPromise'
+      :modalOkDisabled='() => modalError != "" || hasAllPerms'
+      ref='MediaPermissions'
+      :showModalCallback='showModal'
+      :validationStates='validationStates'>
       <template #headerMessage>{{ tableCaption }}</template>
       <template #formGroups>
-        <b-form-group label="ID:" label-for="media-id">
-          <b-form-input id="media-id" v-model="$route.params.mediaId" readonly></b-form-input>
+        <b-form-group label='ID:' label-for='media-id'>
+          <b-form-input id='media-id' v-model='$route.params.mediaId' readonly></b-form-input>
         </b-form-group>
-        <b-form-group label="Permission:" label-for="permission-select">
-          <b-form-select id="permission-select" v-if="!hasAllPerms && !modalError" v-model="selected" :options="allPermissions" :state="validationStates.permission" @invalid="validationStates.permission = false" text-field="name" value-field="id" autofocus multiple required>
+        <b-form-group label='Permission:' label-for='permission-select'>
+          <b-form-select id='permission-select' v-if='!hasAllPerms && !modalError' v-model='selected' :options='allPermissions' :state='validationStates.permission' @invalid='validationStates.permission = false' text-field='name' value-field='id' autofocus multiple required>
             <template #first>
-              <b-form-select-option value="" disabled>-- Please select a Permission  --</b-form-select-option>
+              <b-form-select-option value='' disabled>-- Please select a Permission  --</b-form-select-option>
             </template>
           </b-form-select>
-          <b-alert show variant="danger" v-if="modalError" dismissible>{{ modalError }}</b-alert>
-          <b-alert v-model="hasAllPerms" variant="info">This media already has all possible permissions.</b-alert>
+          <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
+          <b-alert v-model='hasAllPerms' variant='info'>This media already has all possible permissions.</b-alert>
         </b-form-group>
       </template>
       <template #empty>No permissions found for {{ mediaName}} ({{ $route.params.mediaId }})</template>
@@ -62,7 +62,7 @@
         ],
         itemClass: MediaPerm,
         mediaName: null,
-        modalError: "",
+        modalError: '',
         selected: [],
         validationStates: {
           permission: null,

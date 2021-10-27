@@ -1,6 +1,6 @@
 function errorToString(error) {
   if (! error) {
-    return ""
+    return ''
   }
 
   // check if this is an HTTP error
@@ -9,19 +9,19 @@ function errorToString(error) {
     switch (error.response.status) {
       case 400:
         // 400 = Bad Request
-        return "Invalid Request"
+        return 'Invalid Request'
       case 401:
         // 401 = Unauthorized
-        return "Permissions issue: Unauthorized"
+        return 'Permissions issue: Unauthorized'
       case 403:
         // 403 = Forbidden
-        return "Permissions issue: Forbidden"
+        return 'Permissions issue: Forbidden'
       case 404:
         // 404 = Not Found
-        return "Data not found"
+        return 'Data not found'
       case 409:
         // 409 = Conflict
-        return "Duplicate record"
+        return 'Duplicate record'
       default:
         // Not sure what this error is
         return `An unknown error occured: ${error}`

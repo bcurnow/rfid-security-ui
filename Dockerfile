@@ -14,7 +14,7 @@ RUN if [ ${GROUP_ID:-0} -ne 0 ] && [ ${USER_ID:-0} -ne 0 ]; then \
 # Setup the node user with a home directory and sudo permissions
 RUN install -d -m 0755 -o node -g node /home/node  \
     && mkdir -p /etc/sudoers.d \
-    && echo "node ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/node-all-nopasswd
+    && echo 'node ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/node-all-nopasswd
 
 COPY ./docker-files/home/.* /docker-files/home/* /home/node/
 
@@ -38,4 +38,4 @@ WORKDIR /rfid-security-ui
 
 EXPOSE 8080
 
-CMD ["npm", "run", "serve"]
+CMD ['npm', 'run', 'serve']

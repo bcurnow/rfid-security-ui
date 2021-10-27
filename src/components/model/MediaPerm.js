@@ -1,6 +1,6 @@
-import BaseModel from "./BaseModel"
-import Media from "./Media"
-import Permission from "./Permission"
+import BaseModel from './BaseModel'
+import Media from './Media'
+import Permission from './Permission'
 
 export class MediaPerm extends BaseModel {
   static type = 'Media Permission'

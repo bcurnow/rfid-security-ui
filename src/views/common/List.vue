@@ -1,58 +1,58 @@
 <template>
-  <div class="container text-left">
-    <div class="row">
-      <div class="col-sm">
+  <div class='container text-left'>
+    <div class='row'>
+      <div class='col-sm'>
         <b-table
           borderless
           caption-top
-          :current-page="tableData.currentPage"
-          :fields="fields"
-          :filter="tableData.filter"
-          @filtered="onFiltered"
-          head-row-variant="primary"
+          :current-page='tableData.currentPage'
+          :fields='fields'
+          :filter='tableData.filter'
+          @filtered='onFiltered'
+          head-row-variant='primary'
           hover
-          :id="tableRef"
-          :items="itemsProvider"
+          :id='tableRef'
+          :items='itemsProvider'
           no-provider-sorting
-          :per-page="perPage"
-          :primary-key="itemClass.primarykey"
-          :ref="tableRef"
-          responsive="md"
-          @row-clicked="rowClicked"
-          @row-selected="rowSelected"
+          :per-page='perPage'
+          :primary-key='itemClass.primarykey'
+          :ref='tableRef'
+          responsive='md'
+          @row-clicked='rowClicked'
+          @row-selected='rowSelected'
           show-empty
-          :selectable="rowClicked != null"
-          :select-mode="selectMode"
-          :sort-by="itemClass.primaryKey"
+          :selectable='rowClicked != null'
+          :select-mode='selectMode'
+          :sort-by='itemClass.primaryKey'
           sort-icon-left
           striped>
           <template #table-caption>
-            <slot name="caption"></slot>
+            <slot name='caption'></slot>
           </template>
           <template #table-busy>
-            <div class="text-center text-primary my-2">
-              <b-spinner class="align-middle"></b-spinner>
+            <div class='text-center text-primary my-2'>
+              <b-spinner class='align-middle'></b-spinner>
               <strong>Loading...</strong>
             </div>
           </template>
           <template #thead-top>
             <div>
-              <div v-if="$slots.headerMessage">
-                <b-tr class="table-borderless">
-                  <b-th :colspan="fields.length">
-                    <slot name="headerMessage"></slot>
+              <div v-if='$slots.headerMessage'>
+                <b-tr class='table-borderless'>
+                  <b-th :colspan='fields.length'>
+                    <slot name='headerMessage'></slot>
                   </b-th>
                 </b-tr>
               </div>
-              <div v-if="!disableFiltering">
+              <div v-if='!disableFiltering'>
                 <b-tr>
-                  <b-th :colspan="fields.length">
-                    <slot name="thead-filter">
-                      <b-form-group class="mb-0" label="Filter" label-for="filter-input" label-cols="auto" label-size="sm">
-                        <b-input-group size="sm">
-                          <b-form-input id="filter-input" v-model="tableData.filter" type="search" placeholder="Type to Search" debounce="250"></b-form-input>
+                  <b-th :colspan='fields.length'>
+                    <slot name='thead-filter'>
+                      <b-form-group class='mb-0' label='Filter' label-for='filter-input' label-cols='auto' label-size='sm'>
+                        <b-input-group size='sm'>
+                          <b-form-input id='filter-input' v-model='tableData.filter' type='search' placeholder='Type to Search' debounce='250'></b-form-input>
                           <b-input-group-append>
-                            <b-button :disabled="!tableData.filter" @click="tableData.filter = ''">Clear</b-button>
+                            <b-button :disabled='!tableData.filter' @click='tableData.filter = ""'>Clear</b-button>
                           </b-input-group-append>
                         </b-input-group>
                       </b-form-group>
@@ -63,48 +63,48 @@
             </div>
           </template>
           <template #head(controls)>
-            <div class="text-right">
-              <slot name="addButton">
-                <b-button size="md" variant="primary" @click="createItem" v-if="hasCreateFunction" v-b-tooltip.v-primary="`Add ${itemClass.type}`" pill><b-icon icon="plus-circle-fill"></b-icon></b-button>
+            <div class='text-right'>
+              <slot name='addButton'>
+                <b-button size='md' variant='primary' @click='createItem' v-if='hasCreateFunction' v-b-tooltip.v-primary='`Add ${itemClass.type}`' pill><b-icon icon='plus-circle-fill'></b-icon></b-button>
               </slot>
             </div>
           </template>
-          <template v-for="field in customRenderFields" v-slot:[toCell(field)]="props">
-            <slot :name="field" v-bind="props"></slot>
+          <template v-for='field in customRenderFields' v-slot:[toCell(field)]='props'>
+            <slot :name='field' v-bind='props'></slot>
           </template>
-          <template #cell(controls)="props">
-            <div class="text-nowrap text-right">
-              <slot name="customControlsPre" v-bind="props" v-if="isControllable(props.item)"></slot>
-              <slot name="standardControls" :item="props.item" v-if="isControllable(props.item)">
-                  <b-button size="sm" class="ml-1" variant="primary" @click="editItem(props.item)" v-if="hasUpdateFunction" v-b-tooltip="{ title: 'Edit', variant: 'primary' }" pill><b-icon class="mb-1 mt-1" icon="pencil"></b-icon></b-button>
-                  <b-button size="sm" class="ml-1" variant="danger" @click="handleDelete(props.item)" v-if="hasDeleteFunction" v-b-tooltip="{ title: 'Delete', variant: 'danger' }" pill><b-icon class="mb-1 mt-1" icon="dash-circle-fill"></b-icon></b-button>
+          <template #cell(controls)='props'>
+            <div class='text-nowrap text-right'>
+              <slot name='customControlsPre' v-bind='props' v-if='isControllable(props.item)'></slot>
+              <slot name='standardControls' :item='props.item' v-if='isControllable(props.item)'>
+                  <b-button size='sm' class='ml-1' variant='primary' @click='editItem(props.item)' v-if='hasUpdateFunction' v-b-tooltip.v-primary="'Edit'" pill><b-icon class='mb-1 mt-1' icon='pencil'></b-icon></b-button>
+                  <b-button size='sm' class='ml-1' variant='danger' @click='handleDelete(props.item)' v-if='hasDeleteFunction' v-b-tooltip.v-danger="'Delete'" pill><b-icon class='mb-1 mt-1' icon='dash-circle-fill'></b-icon></b-button>
               </slot>
-              <slot name="customControlsPost" v-bind="props" v-if="isControllable(props.item)"></slot>
+              <slot name='customControlsPost' v-bind='props' v-if='isControllable(props.item)'></slot>
             </div>
           </template>
           <template #empty>
-            <div class="text-center">
-              <slot name="empty">{{ emptyMessage }}</slot>
+            <div class='text-center'>
+              <slot name='empty'>{{ emptyMessage }}</slot>
             </div>
           </template>
           <template #emptyfiltered>
-            <div class="text-center">
-              <slot name="emptyfiltered">{{ emptyFilteredMessage }}</slot>
+            <div class='text-center'>
+              <slot name='emptyfiltered'>{{ emptyFilteredMessage }}</slot>
             </div>
           </template>
         </b-table>
-        <b-pagination v-if="tableData.totalRows > perPage" v-model="tableData.currentPage" :per-page="perPage" :total-rows="tableData.totalRows" :value="tableData.currentPage"></b-pagination>
-        <b-alert :show="tableData.errorMessage != null" variant="danger" fade dismissible>{{ tableData.errorMessage }}</b-alert>
+        <b-pagination v-if='tableData.totalRows > perPage' v-model='tableData.currentPage' :per-page='perPage' :total-rows='tableData.totalRows' :value='tableData.currentPage'></b-pagination>
+        <b-alert :show='tableData.errorMessage != null' variant='danger' fade dismissible>{{ tableData.errorMessage }}</b-alert>
       </div>
     </div>
-    <b-modal :id="modalRef" :title="`${itemClass.type} Details`" @show="showModal" @ok="handleModalOk" :ok-disabled="modalOkDisabled()" :ok-only="modalOkOnly()">
-      <div class="text-center text-info my-2" v-show="modalLoading">
-        <b-spinner class="align-middle"></b-spinner>
+    <b-modal :id='modalRef' :title='`${itemClass.type} Details`' @show='showModal' @ok='handleModalOk' :ok-disabled='modalOkDisabled()' :ok-only='modalOkOnly()'>
+      <div class='text-center text-info my-2' v-show='modalLoading'>
+        <b-spinner class='align-middle'></b-spinner>
         <strong>Loading...</strong>
       </div>
-      <div v-show="!modalLoading">
-        <form ref="itemDetailsForm">
-          <slot name="formGroups" :item="selected" :isNew="isNew"></slot>
+      <div v-show='!modalLoading'>
+        <form ref='itemDetailsForm'>
+          <slot name='formGroups' :item='selected' :isNew='isNew'></slot>
         </form>
       </div>
     </b-modal>
@@ -131,13 +131,13 @@
         return this.updateItemPromise
       },
       modalRef: function() {
-        return `${this.itemClass.type.replace(/ /g, "")}Modal`
+        return `${this.itemClass.type.replace(/ /g, '')}Modal`
       },
       table: function() {
         return this.$refs[this.tableRef]
       },
       tableRef: function() {
-        return `${this.itemClass.type.replace(/ /g, "")}Table`
+        return `${this.itemClass.type.replace(/ /g, '')}Table`
       },
     },
     data() {

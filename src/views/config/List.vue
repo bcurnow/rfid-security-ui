@@ -1,20 +1,20 @@
 <template>
-  <div class="container text-left">
+  <div class='container text-left'>
     <item-list
-      :createItemPromise="createItemPromise"
-      :deleteItemPromise="deleteItemPromise"
-      :fields="fields"
-      :itemClass="itemClass"
-      :itemsPromise="itemsPromise"
-      :updateItemPromise="updateItemPromise"
-      :validationStates="validationStates">
-      <template #formGroups="props">
-        <b-form-group label="Key:" label-for="key-input" invalid-feedback="A configuration key is required!">
-          <b-form-input id="key-input" v-model="props.item.key" v-if="!props.isNew" readonly></b-form-input>
-          <b-form-input id="key-input" v-model="props.item.key" v-if="props.isNew" :state="validationStates.key" @invalid="validationStates.key = false" placeholder="Config Key" required></b-form-input>
+      :createItemPromise='createItemPromise'
+      :deleteItemPromise='deleteItemPromise'
+      :fields='fields'
+      :itemClass='itemClass'
+      :itemsPromise='itemsPromise'
+      :updateItemPromise='updateItemPromise'
+      :validationStates='validationStates'>
+      <template #formGroups='props'>
+        <b-form-group label='Key:' label-for='key-input' invalid-feedback='A configuration key is required!'>
+          <b-form-input id='key-input' v-model='props.item.key' v-if='!props.isNew' readonly></b-form-input>
+          <b-form-input id='key-input' v-model='props.item.key' v-if='props.isNew' :state='validationStates.key' @invalid='validationStates.key = false' placeholder='Config Key' required></b-form-input>
         </b-form-group>
-        <b-form-group label="Value:" label-for="value-input" invalid-feedback="A configuration value is required!">
-          <b-form-input id="value-input" v-model="props.item.value" :state="validationStates.value" @invalid="validationStates.value = false" placeholder="Config Value" required></b-form-input>
+        <b-form-group label='Value:' label-for='value-input' invalid-feedback='A configuration value is required!'>
+          <b-form-input id='value-input' v-model='props.item.value' :state='validationStates.value' @invalid='validationStates.value = false' placeholder='Config Value' required></b-form-input>
         </b-form-group>
       </template>
     </item-list>

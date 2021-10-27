@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 networks:
   magicbandreader:
     name: magicbandreader
@@ -7,16 +7,16 @@ services:
     container_name: magicband-reader
     depends_on:
       - rfidsecuritysvc
-    image: "mock-magicband-reader:production"
+    image: 'mock-magicband-reader:production'
     networks:
       - magicbandreader
   rfidsecuritysvc:
     container_name: rfidsecuritysvc
-    image: "rfid-security-svc:production"
+    image: 'rfid-security-svc:production'
     networks:
       - magicbandreader
     ports:
-      - "5000:5000"
+      - '5000:5000'
     volumes:
       - rfid-db:/rfid-db
   rfidsecurityui:
@@ -29,13 +29,13 @@ services:
     depends_on:
       - rfidsecuritysvc
     environment:
-      WEBPACK_PUBLIC: "devpi.local:8080"
-      WEBPACK_DISABLE_HOST_CHECK: "true"
+      WEBPACK_PUBLIC: 'devpi.local:8080'
+      WEBPACK_DISABLE_HOST_CHECK: 'true'
     image: rfid-security-ui:latest
     networks:
       - magicbandreader
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - type: bind
         source: ../rfid-security-ui/

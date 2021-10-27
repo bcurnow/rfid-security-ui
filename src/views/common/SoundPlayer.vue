@@ -1,8 +1,8 @@
 <template>
-  <b-modal id="sound-player" title="Sound Player" @show="showModal" ok-only>
-    <div class="text-center">
+  <b-modal id='sound-player' title='Sound Player' @show='showModal' ok-only>
+    <div class='text-center'>
       <audio controls autoplay>
-        <source :src="url" type="audio/wav">
+        <source :src='url' type='audio/wav'>
         Your browser does not support the <code>audio</code> element.
       </audio>
     </div>
@@ -13,7 +13,7 @@
 export default {
   data() {
     return {
-      url: "",
+      url: '',
     }
   },
   methods: {

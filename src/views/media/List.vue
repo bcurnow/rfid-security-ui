@@ -1,40 +1,40 @@
 <template>
-  <div class="container text-left">
+  <div class='container text-left'>
     <item-list
-      :createItemPromise="createItemPromise"
-      :customRenderFields="customRenderFields"
-      :deleteItemPromise="deleteItemPromise"
-      :fields="fields"
-      :itemClass="itemClass"
-      :itemsPromise="itemsPromise"
-      ref="Media"
-      :rowSelected="mediaSelected"
-      :updateItemPromise="updateItemPromise"
-      :validationStates="validationStates">
+      :createItemPromise='createItemPromise'
+      :customRenderFields='customRenderFields'
+      :deleteItemPromise='deleteItemPromise'
+      :fields='fields'
+      :itemClass='itemClass'
+      :itemsPromise='itemsPromise'
+      ref='Media'
+      :rowSelected='mediaSelected'
+      :updateItemPromise='updateItemPromise'
+      :validationStates='validationStates'>
       <template #headerMessage>Select a row to see associated permissions</template>
-      <template #customControlsPost="props">
-        <b-button size="sm" class="ml-1" variant="primary" :to="{ name: 'MediaPermissions', params: { mediaId: props.item.id } }" v-b-tooltip="{ title: 'Permissions ', variant: 'primary' }" @click="$refs.Media.selectRow(props.index)" pill><b-icon class="mb-1 mt-1" icon="key"></b-icon></b-button>
+      <template #customControlsPost='props'>
+        <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'MediaPermissions', params: { mediaId: props.item.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.Media.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='key'></b-icon></b-button>
       </template>
-      <template #id="props">
+      <template #id='props'>
         {{ selectRow(props) }}
       </template>
-      <template #formGroups="props">
-        <b-form-group label="Name:" label-for="name-input" invalid-feedback="A media name is required!">
-          <b-form-input id="name-input" v-model="props.item.name" :state="validationStates.name" placeholder="Media Name" @invalid="validationStates.name = false" required></b-form-input>
+      <template #formGroups='props'>
+        <b-form-group label='Name:' label-for='name-input' invalid-feedback='A media name is required!'>
+          <b-form-input id='name-input' v-model='props.item.name' :state='validationStates.name' placeholder='Media Name' @invalid='validationStates.name = false' required></b-form-input>
         </b-form-group>
-        <b-form-group label="Description:" label-for="desc-input">
-          <b-form-textarea id="desc-input" v-model="props.item.desc" placeholder="Media Description"></b-form-textarea >
+        <b-form-group label='Description:' label-for='desc-input'>
+          <b-form-textarea id='desc-input' v-model='props.item.desc' placeholder='Media Description'></b-form-textarea >
         </b-form-group>
-        <b-form-group label="UUID:" label-for="id-input" invalid-feedback="A media UUID is required!" :state="validationStates.id">
+        <b-form-group label='UUID:' label-for='id-input' invalid-feedback='A media UUID is required!' :state='validationStates.id'>
           <b-input-group>
-            <b-form-input id="id-input" v-model="props.item.id" v-if="!props.isNew" readonly></b-form-input>
-            <b-form-input id="id-input" v-model="props.item.id" v-if="props.isNew" :state="validationStates.id" placeholder="Media UUID" @invalid="validationStates.id = false" required></b-form-input>
+            <b-form-input id='id-input' v-model='props.item.id' v-if='!props.isNew' readonly></b-form-input>
+            <b-form-input id='id-input' v-model='props.item.id' v-if='props.isNew' :state='validationStates.id' placeholder='Media UUID' @invalid='validationStates.id = false' required></b-form-input>
             <b-input-group-append>
-              <b-button variant="info" @click="readMedia(props.item)" v-if="props.isNew">Read Media</b-button>
+              <b-button variant='info' @click='readMedia(props.item)' v-if='props.isNew'>Read Media</b-button>
             </b-input-group-append>
           </b-input-group>
-          <b-toast id="readingToast" variant="info" toaster="readingToaster" static solid no-close-button no-auto-hide>Please place the media near the reader</b-toast>
-          <b-toast id="readingErrorToast" variant="danger" toaster="readingToaster" static solid no-close-button no-auto-hide>{{ mediaReadError }}</b-toast>
+          <b-toast id='readingToast' variant='info' toaster='readingToaster' static solid no-close-button no-auto-hide>Please place the media near the reader</b-toast>
+          <b-toast id='readingErrorToast' variant='danger' toaster='readingToaster' static solid no-close-button no-auto-hide>{{ mediaReadError }}</b-toast>
         </b-form-group>
       </template>
       <template #emptyfiltered>No media found with current filter settings</template>
@@ -72,7 +72,7 @@
           }
         ],
         itemClass: Media,
-        mediaReadError: "",
+        mediaReadError: '',
         validationStates: {
           id: null,
           name: null,
@@ -105,7 +105,7 @@
         }
       },
       readMedia: function(item) {
-        this.$bvToast.hide("readingErrorToast")
+        this.$bvToast.hide('readingErrorToast')
         this.$bvToast.show('readingToast')
 
         this.$RFIDSecuritySvc.reader.getUid()
@@ -115,11 +115,11 @@
           // update the object so create works but for us to update via code, we need to let
           // Vue know that we've added the property, the $set method does this
           this.$set(item, 'id', response.data)
-          this.$bvToast.hide("readingToast")
+          this.$bvToast.hide('readingToast')
         })
         .catch(err => {
           this.mediaReadError = `An error occurred while reading media: ${err}`
-          this.$bvToast.hide("readingToast")
+          this.$bvToast.hide('readingToast')
           this.$bvToast.show('readingErrorToast')
         })
       },

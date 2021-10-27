@@ -1,6 +1,6 @@
-import api from "./Base"
-import {Sound} from "@/components/model"
-import combineURLs from "axios/lib/helpers/combineURLs.js"
+import api from './Base'
+import {Sound} from '@/components/model'
+import combineURLs from 'axios/lib/helpers/combineURLs.js'
 
 const BASE_URL = '/sounds'
 
