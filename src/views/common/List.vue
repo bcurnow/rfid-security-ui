@@ -15,7 +15,7 @@
           no-provider-filtering
           no-provider-sorting
           :per-page="perPage"
-          :primary-key="primaryKey"
+          :primary-key="itemClass.primarykey"
           :ref="tableRef"
           responsive="md"
           @row-clicked="rowClicked"
@@ -23,7 +23,7 @@
           show-empty
           :selectable="rowClicked != null"
           :select-mode="selectMode"
-          :sort-by="primaryKey"
+          :sort-by="itemClass.primaryKey"
           sort-icon-left
           striped>
           <template #table-caption>
@@ -65,7 +65,7 @@
           <template #head(controls)>
             <div class="text-right">
               <slot name="addButton">
-                <b-button size="md" variant="primary" @click="createItem" v-if="hasCreateFunction" v-b-tooltip.v-primary="`Add ${itemType}`" pill><b-icon icon="plus-circle-fill"></b-icon></b-button>
+                <b-button size="md" variant="primary" @click="createItem" v-if="hasCreateFunction" v-b-tooltip.v-primary="`Add ${itemClass.type}`" pill><b-icon icon="plus-circle-fill"></b-icon></b-button>
               </slot>
             </div>
           </template>
@@ -74,12 +74,12 @@
           </template>
           <template #cell(controls)="props">
             <div class="text-nowrap text-right">
-              <slot name="customControlsPre" v-bind="props" v-if="includeControls(props.item[primaryKey])"></slot>
-              <slot name="standardControls" :item="props.item" v-if="includeControls(props.item[primaryKey])">
+              <slot name="customControlsPre" v-bind="props" v-if="isControllable(props.item)"></slot>
+              <slot name="standardControls" :item="props.item" v-if="isControllable(props.item)">
                   <b-button size="sm" class="ml-1" variant="primary" @click="editItem(props.item)" v-if="hasUpdateFunction" v-b-tooltip="{ title: 'Edit', variant: 'primary' }" pill><b-icon class="mb-1 mt-1" icon="pencil"></b-icon></b-button>
                   <b-button size="sm" class="ml-1" variant="danger" @click="handleDelete(props.item)" v-if="hasDeleteFunction" v-b-tooltip="{ title: 'Delete', variant: 'danger' }" pill><b-icon class="mb-1 mt-1" icon="dash-circle-fill"></b-icon></b-button>
               </slot>
-              <slot name="customControlsPost" v-bind="props" v-if="includeControls(props.item[primaryKey])"></slot>
+              <slot name="customControlsPost" v-bind="props" v-if="isControllable(props.item)"></slot>
             </div>
           </template>
           <template #empty>
@@ -94,10 +94,10 @@
           </template>
         </b-table>
         <b-pagination v-if="totalRows > perPage" v-model="tableData.currentPage" :per-page="perPage" :total-rows="totalRows" :value="tableData.currentPage"></b-pagination>
-        <b-alert :show="tableData.tableError != null" variant="danger" fade dismissible>{{ tableData.tableError }}</b-alert>
+        <b-alert :show="tableData.errorMessage != null" variant="danger" fade dismissible>{{ tableData.errorMessage }}</b-alert>
       </div>
     </div>
-    <b-modal :id="modalRef" :title="`${itemType} Details`" @show="showModal" @ok="handleModalOk" :ok-disabled="modalOkDisabled()" :ok-only="modalOkOnly()">
+    <b-modal :id="modalRef" :title="`${itemClass.type} Details`" @show="showModal" @ok="handleModalOk" :ok-disabled="modalOkDisabled()" :ok-only="modalOkOnly()">
       <div class="text-center text-info my-2" v-show="modalLoading">
         <b-spinner class="align-middle"></b-spinner>
         <strong>Loading...</strong>
@@ -116,10 +116,10 @@
   export default {
     computed: {
       emptyMessage: function() {
-        return `No ${this.itemType.toLowerCase()}s found`
+        return `No ${this.itemClass.type.toLowerCase()}s found`
       },
       emptyFilteredMessage: function() {
-        return `No ${this.itemType.toLowerCase()}s found with current filter settings`
+        return `No ${this.itemClass.type.toLowerCase()}s found with current filter settings`
       },
       hasCreateFunction: function() {
         return this.createItemPromise
@@ -131,13 +131,13 @@
         return this.updateItemPromise
       },
       modalRef: function() {
-        return `${this.id}Modal`
+        return `${this.itemClass.type.replace(/ /g, "")}Modal`
       },
       table: function() {
         return this.$refs[this.tableRef]
       },
       tableRef: function() {
-        return `${this.id}Table`
+        return `${this.itemClass.type.replace(/ /g, "")}Table`
       },
       totalRows: function() {
         return this.tableData.items.length
@@ -150,7 +150,7 @@
           filter: '',
           items: [],
           retrieveItems: true,
-          tableError: null,
+          errorMessage: null,
         },
         isNew: false,
         modalLoading: true,
@@ -174,24 +174,25 @@
       },
       createItem() {
         // In order to maintain reactivity, we need to ensure that the selected Object is set to something
-        this.selected = {}
+        this.selected = new this.itemClass({})
         this.isNew = true
         this.$bvModal.show(this.modalRef)
       },
       editItem(item) {
-        this.selected = Object.assign({}, item)
+        //this.selected = Object.assign({}, item)
+        this.selected = Object.assign(new this.itemClass({}), item)
         this.isNew = false
         this.$bvModal.show(this.modalRef)
       },
       handleDelete(item) {
-        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete ${this.itemType.toLowerCase()} '${this.itemToDisplayString(item)}'?`, {
-          title: `Delete ${this.itemType}?`,
+        this.$bvModal.msgBoxConfirm(`Are you sure you want to delete ${this.itemClass.type.toLowerCase()} '${item.displayIdentifier()}'?`, {
+          title: `Delete ${this.itemClass.type}?`,
         })
         .then(confirm => {
           if (confirm) {
             this.deleteItemPromise(item)
             .then(() => this.refreshItems())
-            .catch(err => this.$bvModal.msgBoxOk(`Unable to delete ${this.itemType.toLowerCase()} '${this.itemToDisplayString(item)}': ${errorToString(err)}`))
+            .catch(err => this.$bvModal.msgBoxOk(`Unable to delete ${this.itemClass.type.toLowerCase()} '${item.displayIdentifier()}': ${errorToString(err)}`))
           }
         })
       },
@@ -202,29 +203,27 @@
           return
         }
 
-        this.handleItemDetailsFormSubmit()
-      },
-      handleItemDetailsFormSubmit() {
         if (this.isNew) {
           // This is a create
           this.createItemPromise(this.selected)
           .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to create ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${errorToString(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to create ${this.itemClass.type.toLowerCase()} '${this.selected.displayIdentifier()}': ${errorToString(err)}`)
           })
         } else {
           //This is an update
           this.updateItemPromise(this.selected)
           .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to update ${this.itemType.toLowerCase()} '${this.itemToDisplayString(this.selected)}': ${errorToString(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to update ${this.itemClass.type.toLowerCase()} '${this.selected.displayIdentifier()}': ${errorToString(err)}`)
           })
         }
       },
-      includeControls(key) {
-        if (this.noControlsForPKs.findIndex(filterKey => filterKey == key) > -1) {
-          return false
+      isControllable(item) {
+        if (item.isControllable) {
+          return item.isControllable()
         }
+        // If the item doesn't have an isControllable function, it is controllable by default
         return true
       },
       isRowSelected(index) {
@@ -234,19 +233,19 @@
         if (this.tableData.retrieveItems) {
           return this.itemsPromise()
           .then(response => {
-            this.tableData.items = response.data
+            this.tableData.items = response
             this.tableData.retrieveItems = false
-            return this.itemsProviderTransform(this.tableData, ctx)
+            return this.itemsProviderApplyContext(this.tableData, ctx)
           })
           .catch(err => {
-            this.tableData.tableError = `An error occurred while loading the data: ${errorToString(err)}`
+            this.tableData.errorMessage = `An error occurred while loading the data: ${errorToString(err)}`
             return []
           })
         } else {
-          return this.itemsProviderTransform(this.tableData, ctx)
+          return this.itemsProviderApplyContext(this.tableData, ctx)
         }
       },
-      itemsProviderTransform(tableData, ctx) {
+      itemsProviderApplyContext(tableData, ctx) {
         // TODO: Implement pagination on the server side
         let sliceStart = (ctx.currentPage - 1) * ctx.perPage
         let sliceEnd = sliceStart + ctx.perPage
@@ -296,22 +295,12 @@
         type: Array,
         required: true
       },
-      id: {
-        type: String,
-        required: true,
-      },
-      itemToDisplayString: {
+      itemClass: {
         type: Function,
-        default: function(item) {
-          return item[this.primaryKey]
-        },
+        required: true,
       },
       itemsPromise: {
         type: Function,
-        required: true,
-      },
-      itemType: {
-        type: String,
         required: true,
       },
       modalOkDisabled: {
@@ -326,19 +315,9 @@
           return false
         },
       },
-      noControlsForPKs: {
-        type: Array,
-        default: function() {
-          return []
-        },
-      },
       perPage: {
         type: Number,
         default: 10,
-      },
-      primaryKey: {
-        type: String,
-        default: "id",
       },
       rowClicked: {
         type: Function,
