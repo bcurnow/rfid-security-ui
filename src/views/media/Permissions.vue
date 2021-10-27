@@ -3,11 +3,11 @@
     <item-list
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
-      disableFiltering
       :fields="fields"
       :itemClass="itemClass"
       :itemsPromise="itemsPromise"
       :modalOkDisabled="() => modalError != '' || hasAllPerms"
+      ref="MediaPermissions"
       :showModalCallback="showModal"
       :validationStates="validationStates">
       <template #headerMessage>{{ tableCaption }}</template>
@@ -31,7 +31,7 @@
 </template>
 <script>
   import List from '../common/List'
-  import {MediaPerm} from '@/components/svc/MediaPerms.js'
+  import {MediaPerm} from '@/components/model'
 
   export default {
     components: {
@@ -105,7 +105,7 @@
       },
       getMediaName: function(mediaId) {
         this.$RFIDSecuritySvc.media.get(mediaId)
-        .then(response => this.mediaName = response.data.name)
+        .then(response => this.mediaName = response.name)
         .catch(() => this.mediaName = null)
       },
       itemsPromise: function() {
@@ -124,12 +124,12 @@
         this.selected = []
         this.$RFIDSecuritySvc.permission.list()
         .then(allPermissionsResponse => {
-          this.allPermissions = allPermissionsResponse.data
+          this.allPermissions = allPermissionsResponse
           this.itemsPromise()
           .then(currentPerms => {
             let disabledCount = 0
             for (const p of this.allPermissions) {
-              if (currentPerms.data.findIndex(currentPerm => currentPerm.permission.id === p.id) > -1) {
+              if (currentPerms.findIndex(currentPerm => currentPerm.permission.id === p.id) > -1) {
                 disabledCount++
                 this.$set(p, 'disabled', true)
               }
@@ -140,7 +140,7 @@
             finishCallback()
           })
           .catch(()=> {
-            this.allPermissions = allPermissionsResponse.data
+            this.allPermissions = allPermissionsResponse
             finishCallback()
           })
         })
