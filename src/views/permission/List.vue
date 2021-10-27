@@ -4,7 +4,6 @@
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
-      id="Permission"
       :itemsPromise="itemsPromise"
       :itemToDisplayString="itemToDisplayString"
       itemType="Permission"
