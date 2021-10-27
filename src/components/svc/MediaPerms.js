@@ -20,8 +20,9 @@ const svc = {
     const response = await api.get(BASE_URL, {})
     return response.data.map(api => new MediaPerm(api))
   },
-  listByMedia: function(mediaId) {
-    return api.get(BASE_URL, { params: { media_id: mediaId } })
+  listByMedia: async function(mediaId) {
+    const response = await api.get(BASE_URL, { params: { media_id: mediaId } })
+    return response.data.map(api => new MediaPerm(api))
   },
 }
 
