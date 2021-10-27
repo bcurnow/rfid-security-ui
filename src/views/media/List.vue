@@ -7,6 +7,7 @@
       :fields="fields"
       :itemClass="itemClass"
       :itemsPromise="itemsPromise"
+      ref="Media"
       :rowSelected="mediaSelected"
       :updateItemPromise="updateItemPromise"
       :validationStates="validationStates">
