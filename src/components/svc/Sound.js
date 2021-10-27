@@ -1,19 +1,6 @@
-import api from './Base.js'
-import {BaseModel} from './Base.js'
-import combineURLs from 'axios/lib/helpers/combineURLs.js'
-
-export class Sound extends BaseModel {
-  static type = 'Sound'
-  static primaryKey = 'id'
-
-  constructor(api) {
-    super()
-    this.id = api.id
-    this.name = api.name
-    this.lastUpdateTimestamp = api.last_update_timestamp
-    this.content = api.content
-  }
-}
+import api from "./Base"
+import {Sound} from "../model"
+import combineURLs from "axios/lib/helpers/combineURLs.js"
 
 const BASE_URL = '/sounds'
 

@@ -1,24 +1,6 @@
-import api from './Base.js'
-import {BaseModel} from './Base.js'
-import combineURLs from 'axios/lib/helpers/combineURLs.js'
-
-export class Config extends BaseModel {
-  static type = 'Config'
-  static primaryKey = 'key'
-
-  constructor(api) {
-    super()
-    this.key = api.key
-    this.value = api.value
-  }
-
-  isControllable() {
-    if (this.key === 'ADMIN_API_KEY') {
-      return false
-    }
-    return true
-  }
-}
+import api from "./Base"
+import {Config} from "../model"
+import combineURLs from "axios/lib/helpers/combineURLs.js"
 
 const BASE_URL = '/configs'
 

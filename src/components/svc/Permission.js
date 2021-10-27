@@ -1,18 +1,6 @@
-import api from './Base.js'
-import {BaseModel} from './Base.js'
-import combineURLs from 'axios/lib/helpers/combineURLs.js'
-
-export class Permission extends BaseModel {
-  static type = 'Permission'
-  static primaryKey = 'id'
-
-  constructor(api) {
-    super()
-    this.id = api.id
-    this.name = api.name
-    this.desc = api.desc
-  }
-}
+import api from "./Base"
+import {Permission} from "../model"
+import combineURLs from "axios/lib/helpers/combineURLs.js"
 
 const BASE_URL = '/permissions'
 

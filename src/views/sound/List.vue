@@ -25,7 +25,7 @@
 </template>
 <script>
   import List from '../common/List'
-  import {Sound} from '@/components/svc/Sound.js'
+  import {Sound} from '@/components/model'
   import SoundPlayer from '../common/SoundPlayer'
 
   export default {

@@ -24,7 +24,7 @@
 </template>
 <script>
   import List from '../common/List'
-  import {Permission} from '@/components/svc/Permission.js'
+  import {Permission} from '@/components/model'
 
   export default {
     components: {

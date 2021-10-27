@@ -43,7 +43,7 @@
 </template>
 <script>
   import List from '../common/List'
-  import {Media} from '@/components/svc/Media.js'
+  import {Media} from '@/components/model'
 
   export default {
     components: {

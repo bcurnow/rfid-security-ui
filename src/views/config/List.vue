@@ -22,7 +22,7 @@
 </template>
 <script>
   import List from '../common/List'
-  import {Config} from '@/components/svc/Config.js'
+  import {Config} from '@/components/model'
   export default {
     components: {
       'item-list': List,

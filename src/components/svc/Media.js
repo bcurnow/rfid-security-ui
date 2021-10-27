@@ -1,22 +1,6 @@
-import api from './Base.js'
-import {BaseModel} from './Base.js'
-import combineURLs from 'axios/lib/helpers/combineURLs.js'
-
-export class Media extends BaseModel {
-  static type = 'Media'
-  static primaryKey = 'name'
-
-  constructor(api) {
-    super()
-    this.id = api.id
-    this.name = api.name
-    this.desc = api.desc
-  }
-
-  displayIdentifier() {
-    return `${this.name}  (${this.id})`
-  }
-}
+import api from "./Base"
+import {Media} from "../model"
+import combineURLs from "axios/lib/helpers/combineURLs.js"
 
 const BASE_URL = '/media'
 

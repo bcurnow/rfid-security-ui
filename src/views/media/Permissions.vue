@@ -5,12 +5,9 @@
       :deleteItemPromise="deleteItemPromise"
       disableFiltering
       :fields="fields"
+      :itemClass="itemClass"
       :itemsPromise="itemsPromise"
-      :itemToDisplayString="itemToDisplayString"
-      itemType="Media Permission"
       :modalOkDisabled="() => modalError != '' || hasAllPerms"
-      :primaryKey="'permission.name'"
-      ref="MediaPermissions"
       :showModalCallback="showModal"
       :validationStates="validationStates">
       <template #headerMessage>{{ tableCaption }}</template>
@@ -34,6 +31,7 @@
 </template>
 <script>
   import List from '../common/List'
+  import {MediaPerm} from '@/components/svc/MediaPerms.js'
 
   export default {
     components: {
@@ -62,6 +60,7 @@
             label: '',
           }
         ],
+        itemClass: MediaPerm,
         mediaName: null,
         modalError: "",
         selected: [],
@@ -108,13 +107,6 @@
         this.$RFIDSecuritySvc.media.get(mediaId)
         .then(response => this.mediaName = response.data.name)
         .catch(() => this.mediaName = null)
-      },
-      itemToDisplayString: item => {
-        if (item && item.permission) {
-          return item.permission.name
-        }
-        // This should never happen and if it does, there's a bug somewhere else
-        return "<unknown>"
       },
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.mediaPerms.listByMedia(this.$route.params.mediaId)
