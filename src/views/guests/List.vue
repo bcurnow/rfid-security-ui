@@ -5,7 +5,6 @@
       :customRenderFields="customRenderFields"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
-      id="Guest"
       :itemsPromise="itemsPromise"
       :itemToDisplayString="itemToDisplayString"
       itemType="Guest"
@@ -37,7 +36,7 @@
       </template>
       <template #color="props">
         <div v-if="props.item.color != null" :style="toColorStyle(props.item.color.html)" class="w-100" v-b-tooltip.v-primary="`${props.item.color.html}`">&nbsp;</div>
-        <span v-if="props.item.color == null" class="text-muted">&lt;default&gt;</span>
+        <span v-if="props.item.color === null" class="text-muted">&lt;default&gt;</span>
       </template>
       <template #sound="props">
         <span v-if="props.item.sound" class="align-text-center">{{props.item.sound.name}}</span>
