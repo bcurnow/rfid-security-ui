@@ -4,7 +4,6 @@
       :createItemPromise="createItemPromise"
       :deleteItemPromise="deleteItemPromise"
       :fields="fields"
-      id="Sound"
       :itemsPromise="itemsPromise"
       itemType="Sound"
       primaryKey="name"
@@ -70,7 +69,7 @@
       },
       uploadFileChanged(item) {
         this.$nextTick(() => {
-          if (!item.name || item.name == "") {
+          if (!item.name || item.name === "") {
             // Set the name of the sound to the file name
             this.$set(item, 'name', item.uploadFile.name)
           }
