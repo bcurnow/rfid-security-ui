@@ -1,31 +1,33 @@
 import api from './Base.js'
 import combineURLs from 'axios/lib/helpers/combineURLs.js'
-
+import {Guest} from '@/components/model'
 const BASE_URL = '/guests'
 
 const svc = {
   api: api,
-  create: function(first_name, last_name, sound, color) {
+  create: function(firstName, lastName, sound, color) {
     return api.post(BASE_URL, {
-      first_name: first_name,
-      last_name: last_name,
+      first_name: firstName,
+      last_name: lastName,
       sound: sound,
       color: color,
     })
   },
-  delete: function(pk) {
-    return api.delete(combineURLs(BASE_URL, String(pk)), {})
+  delete: function(id) {
+    return api.delete(combineURLs(BASE_URL, String(id)), {})
   },
-  get: function(pk) {
-    return api.get(combineURLs(BASE_URL, String(pk)), {})
+  get: async function(id) {
+    const response = await api.get(combineURLs(BASE_URL, String(id)), {})
+    return new Guest(response.data)
   },
-  list: function() {
-    return api.get(BASE_URL, {})
+  list: async function() {
+    const response = await api.get(BASE_URL, {})
+    return response.data.map(api => new Guest(api))
   },
-  update: function(pk, first_name, last_name, sound, color) {
-    return api.put(combineURLs(BASE_URL, String(pk)), {
-      first_name: first_name,
-      last_name: last_name,
+  update: function(id, firstName, lastName, sound, color) {
+    return api.put(combineURLs(BASE_URL, String(id)), {
+      first_name: firstName,
+      last_name: lastName,
       sound: sound,
       color: color,
     })
