@@ -5,9 +5,8 @@
       :customRenderFields='customRenderFields'
       :deleteItemPromise='deleteItemPromise'
       :fields='fields'
+      :itemClass='itemClass'
       :itemsPromise='itemsPromise'
-      :itemToDisplayString='itemToDisplayString'
-      itemType='Guest'
       :showModalCallback='showModal'
       :updateItemPromise='updateItemPromise'
       :validationStates='validationStates'>
@@ -16,10 +15,10 @@
           <b-form-input id='id-input' v-model='props.item.id' readonly></b-form-input>
         </b-form-group>
         <b-form-group label='First Name:' label-for='firstname-input' invalid-feedback='A first name is required!'>
-          <b-form-input id='firstname-input' v-model='props.item.first_name' :state='validationStates.firstname' @invalid='validationStates.firstname = false' placeholder='Guest First Name' required></b-form-input>
+          <b-form-input id='firstname-input' v-model='props.item.firstName' :state='validationStates.firstname' @invalid='validationStates.firstname = false' placeholder='Guest First Name' required></b-form-input>
         </b-form-group>
         <b-form-group label='Last Name:' label-for='lastname-input' invalid-feedback='A last name is required!'>
-          <b-form-input id='lastname-input' v-model='props.item.last_name' :state='validationStates.lastname' @invalid='validationStates.lastname = false' placeholder='Guest Last Name' required></b-form-input>
+          <b-form-input id='lastname-input' v-model='props.item.lastName' :state='validationStates.lastname' @invalid='validationStates.lastname = false' placeholder='Guest Last Name' required></b-form-input>
         </b-form-group>
         <b-form-group label='Default Sound:' label-for='sound-select' invalid-feedback='Must select a sound or enable the system default!'>
           <b-checkbox class='mb-1' id='defaultSound' ref='defaultSound' v-model='systemDefaultSoundChecked' switch>System Default</b-checkbox>
@@ -32,7 +31,7 @@
         </b-form-group>
       </template>
       <template #customControlsPre='props'>
-        <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary='Play' pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
+        <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
       </template>
       <template #color='props'>
         <div v-if='props.item.color != null' :style='toColorStyle(props.item.color.html)' class='w-100' v-b-tooltip.v-primary='`${props.item.color.html}`'>&nbsp;</div>
@@ -47,6 +46,7 @@
   </div>
 </template>
 <script>
+  import {Guest} from '@/components/model'
   import List from '../common/List'
   import SoundPlayer from '../common/SoundPlayer'
 
@@ -85,11 +85,11 @@
             sortable: true,
           },
           {
-            key: 'first_name',
+            key: 'firstName',
             sortable: true,
           },
           {
-            key: 'last_name',
+            key: 'lastName',
             sortable: true,
           },
           {
@@ -106,6 +106,7 @@
             label: '',
           }
         ],
+        itemClass: Guest,
         modalError: null,
         playerSound: '',
         sound: null,
@@ -121,13 +122,10 @@
     },
     methods: {
       createItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.guests.create(item.first_name, item.last_name, this.soundInput, this.colorInput)
+        return this.$RFIDSecuritySvc.guests.create(item.firstName, item.lastName, this.soundInput, this.colorInput)
       },
       deleteItemPromise: function(item) {
         return this.$RFIDSecuritySvc.guests.delete(item.id)
-      },
-      itemToDisplayString: item => {
-        return `${item.first_name} ${item.last_name}`
       },
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.guests.list()
@@ -150,8 +148,8 @@
 
         this.$RFIDSecuritySvc.sound.list()
         .then(response => {
-          response.data.sort((a,b) => (a.name > b.name) ? 1 : -1)
-          this.allSounds = response.data
+          response.sort((a,b) => (a.name > b.name) ? 1 : -1)
+          this.allSounds = response
           finishCallback()
         })
         .catch(err => {
@@ -169,7 +167,7 @@
         }
       },
       updateItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.guests.update(item.id, item.first_name, item.last_name, this.soundInput, this.colorInput)
+        return this.$RFIDSecuritySvc.guests.update(item.id, item.firstName, item.lastName, this.soundInput, this.colorInput)
       },
     },
   }
