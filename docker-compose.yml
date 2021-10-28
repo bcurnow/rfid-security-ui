@@ -16,7 +16,7 @@ services:
     networks:
       - magicbandreader
     ports:
-      - '5000:5000'
+      - '9000:5000'
     volumes:
       - rfid-db:/rfid-db
   rfidsecurityui:
