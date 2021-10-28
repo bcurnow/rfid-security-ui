@@ -38,7 +38,7 @@
         <span v-if='props.item.color === null' class='text-muted'>&lt;default&gt;</span>
       </template>
       <template #sound='props'>
-        <span v-if='props.item.sound' class='align-text-center'>{{props.item.sound.name}}</span>
+        <b-link v-if='props.item.sound' :to="{ name: 'SoundList', query: { filter: `${props.item.sound.name}` } }">{{ props.item.sound.name }}</b-link>
         <span v-if='!props.item.sound' class='text-muted'>&lt;default&gt;</span>
       </template>
     </item-list>

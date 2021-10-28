@@ -369,5 +369,10 @@
         required: true,
       },
     },
+    mounted() {
+      if (this.$route.query && this.$route.query.filter) {
+        this.tableData.filter = this.$route.query.filter
+      }
+    }
   }
 </script>

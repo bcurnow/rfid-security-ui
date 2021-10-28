@@ -2,6 +2,7 @@
   <div class='container text-left'>
     <item-list
       :createItemPromise='createItemPromise'
+      :customRenderFields="customRenderFields"
       :deleteItemPromise='deleteItemPromise'
       :fields='fields'
       :itemClass='itemClass'
@@ -24,6 +25,9 @@
           <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
           <b-alert v-model='hasAllPerms' variant='info'>This media already has all possible permissions.</b-alert>
         </b-form-group>
+      </template>
+      <template #permission.name='props'>
+        <b-link :to="{ name: 'PermissionList', query: { filter: `${props.item.permission.name}`}}">{{ props.item.permission.name }}</b-link>
       </template>
       <template #empty>No permissions found for {{ mediaName}} ({{ $route.params.mediaId }})</template>
     </item-list>
@@ -48,6 +52,7 @@
     data() {
       return {
         allPermissions: [],
+        customRenderFields: ['permission.name'],
         hasAllPerms: false,
         fields: [
           {
