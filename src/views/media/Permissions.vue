@@ -136,32 +136,25 @@
           this.validationStates.permission = false
         }
       },
-      showModal() {
+      async showModal() {
         this.hasAllPerms = false
         this.selected = []
-        this.$RFIDSecuritySvc.permission.list()
-        .then(allPermissionsResponse => {
-          this.allPermissions = allPermissionsResponse
-          this.itemsPromise()
-          .then(currentPerms => {
-            let disabledCount = 0
-            for (const p of this.allPermissions) {
-              if (currentPerms.findIndex(currentPerm => currentPerm.permission.id === p.id) > -1) {
-                disabledCount++
-                this.$set(p, 'disabled', true)
-              }
+        try {
+          this.allPermissions = await this.$RFIDSecuritySvc.permission.list()
+          const currentPerms = await this.itemsPromise()
+          let disabledCount = 0
+          for (const p of this.allPermissions) {
+            if (currentPerms.findIndex(currentPerm => currentPerm.permission.id === p.id) > -1) {
+              disabledCount++
+              this.$set(p, 'disabled', true)
             }
-            if (disabledCount === this.allPermissions.length) {
-              this.hasAllPerms = true
-            }
-          })
-          .catch(()=> {
-            this.allPermissions = allPermissionsResponse
-          })
-        })
-        .catch(err => {
+          }
+          if (disabledCount === this.allPermissions.length) {
+            this.hasAllPerms = true
+          }
+        } catch(err) {
           this.modalError = `Unable to load permissions: ${err}`
-        })
+        }
       },
     },
     mounted() {
