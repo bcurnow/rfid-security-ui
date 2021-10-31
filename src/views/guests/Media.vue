@@ -10,6 +10,7 @@
       :modalOkDisabled='modalOkOnly'
       :postValidation='postValidation'
       ref='GuestMedia'
+      :rowSelected='mediaSelected'
       :showModalCallback='showModal'
       sortBy='media.name'
       :updateItemPromise='updateItemPromise'
@@ -41,6 +42,9 @@
       <template #customControlsPre='props'>
         <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.guestMediaSoundPlayer variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
       </template>
+      <template #customControlsPost='props'>
+        <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'GuestMediaPermissions', params: { mediaId: props.item.media.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.GuestMedia.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='key'></b-icon></b-button>
+      </template>
       <template #empty>No media found for {{ guestName }} ({{ $route.params.guestId }})</template>
       <template #color='props'>
         <color :color='props.item.color ? props.item.color : {}'></color>
@@ -51,6 +55,7 @@
       </template>
     </item-list>
     <sound-player id='guestMediaSoundPlayer' :soundName='playerSound'></sound-player>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -159,6 +164,18 @@
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.guestMedia.listByGuest(this.$route.params.guestId)
       },
+      mediaSelected: function(selectedRows) {
+        if (selectedRows.length === 0) {
+          if (this.$route.name != 'GuestMedia') {
+            this.$router.push({ name: 'GuestMedia' })
+          }
+        } else {
+          let item = selectedRows[0]
+          if (this.$route.name != 'GuestMediaPermissions' || this.$route.params.mediaId != item.media.id) {
+            this.$router.push({ name: 'GuestMediaPermissions', params: { mediaId: item.media.id } })
+          }
+        }
+      },
       postValidation(_, isValid) {
         if (isValid) {
           return
@@ -222,10 +239,12 @@
       this.guestName = this.getGuestName(this.$route.params.guestId)
     },
     watch: {
-      '$route'(to) {
-        this.guestName = this.getGuestName(to.params.guestId)
-        this.$refs.GuestMedia.refreshItems()
+      '$route'(to, from) {
+        if (to.params.guestId != from.params.guestId) {
+          this.guestName = this.getGuestName(to.params.guestId)
+          this.$refs.GuestMedia.refreshItems()
+        }
       }
-    }
+    },
   }
 </script>
