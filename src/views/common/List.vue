@@ -23,7 +23,7 @@
           show-empty
           :selectable='rowClicked != null'
           :select-mode='selectMode'
-          :sort-by='itemClass.primaryKey'
+          :sort-by='sortBy'
           sort-icon-left
           striped>
           <template #table-caption>
@@ -97,15 +97,15 @@
         <b-alert :show='tableData.errorMessage != null' variant='danger' fade dismissible>{{ tableData.errorMessage }}</b-alert>
       </div>
     </div>
-    <b-modal :id='modalRef' :title='`${itemClass.type} Details`' @show='showModal' @ok='handleModalOk' :ok-disabled='modalOkDisabled()' :ok-only='modalOkOnly()'>
+    <b-modal :id='modalRef' :ref='modalRef' :title='`${itemClass.type} Details`' @show='showModal' @ok='handleModalOk' :ok-disabled='okDisabled' :ok-only='okOnly'>
       <div class='text-center text-info my-2' v-show='modalLoading'>
         <b-spinner class='align-middle'></b-spinner>
         <strong>Loading...</strong>
       </div>
       <div v-show='!modalLoading'>
-        <form ref='itemDetailsForm'>
-          <slot name='formGroups' :item='selected' :isNew='isNew'></slot>
-        </form>
+        <b-form id='itemDetailsForm' ref='itemDetailsForm'>
+          <slot name='formGroups' :item='selected' :isNew='isNew' :form='`itemDetailsForm`'></slot>
+        </b-form>
       </div>
     </b-modal>
   </div>
@@ -132,6 +132,14 @@
       },
       modalRef: function() {
         return `${this.itemClass.type.replace(/ /g, '')}Modal`
+      },
+      okDisabled: function() {
+        // Wrapped in an computed property because we need the value to update if changed by the child
+        return this.modalOkDisabled()
+      },
+      okOnly: function() {
+        // Wrapped in an computed property because we need the value to update if changed by the child
+        return this.modalOkOnly()
       },
       table: function() {
         return this.$refs[this.tableRef]
@@ -165,7 +173,9 @@
         for (const property in this.validationStates) {
           this.validationStates[property] = null
         }
-        return this.$refs.itemDetailsForm.checkValidity()
+        const formValid = this.$refs.itemDetailsForm.checkValidity()
+        this.postValidation(this.$refs.itemDetailsForm, formValid)
+        return formValid
       },
       clearSelected() {
         this.table.clearSelected()
@@ -293,9 +303,7 @@
         for (const property in this.validationStates) {
           this.validationStates[property] = null
         }
-        this.showModalCallback(this.selected, () => {
-          this.modalLoading = false
-        })
+        Promise.resolve(this.showModalCallback(this.selected, this.isNew)).finally(() => this.modalLoading = false)
       },
       toCell(slot) {
         return `cell(${slot})`
@@ -345,6 +353,10 @@
         type: Number,
         default: 10,
       },
+      postValidation: {
+        type: Function,
+        default: function() {},
+      },
       rowClicked: {
         type: Function,
         default: function() {},
@@ -361,6 +373,12 @@
         type: Function,
         default: function(item, finishedCallback) {
           finishedCallback()
+        },
+      },
+      sortBy: {
+        type: String,
+        default: function() {
+          this.itemClass.primaryKey
         },
       },
       updateItemPromise: Function,
