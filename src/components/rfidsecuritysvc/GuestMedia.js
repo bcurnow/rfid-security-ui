@@ -10,7 +10,7 @@ const svc = {
     return api.post(BASE_URL, {
       guest_id: parseInt(guestId),
       media_id: mediaId,
-      sound_id: sound,
+      sound: sound,
       color: color,
     })
   },
@@ -30,7 +30,6 @@ const svc = {
     return response.data.map(api => new GuestMedia(api))
   },
   update: function(id, guestId, mediaId, sound, color) {
-    console.log(`id: ${id}, guestId: ${guestId}, mediaId: ${mediaId}, sound: ${sound}, color: ${color}`)
     return api.put(combineURLs(BASE_URL, String(id)), {
       guest_id: parseInt(guestId),
       media_id: mediaId,
