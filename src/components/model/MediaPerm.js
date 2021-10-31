@@ -9,8 +9,8 @@ export class MediaPerm extends BaseModel {
   constructor(api) {
     super()
     this.id = api.id
-    this.media = new Media(api.media)
-    this.permission = new Permission(api.permission)
+    this.media = new Media(api.media || {})
+    this.permission = new Permission(api.permission || {})
   }
 
   displayIdentifier() {
