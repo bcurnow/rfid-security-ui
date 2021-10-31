@@ -98,11 +98,11 @@
       </div>
     </div>
     <b-modal :id='modalRef' :ref='modalRef' :title='`${itemClass.type} Details`' @show='showModal' @ok='handleModalOk' :ok-disabled='okDisabled' :ok-only='okOnly'>
-      <div class='text-center text-info my-2' v-show='modalLoading'>
+      <div class='text-center text-info my-2' v-show='modalData.loading'>
         <b-spinner class='align-middle'></b-spinner>
         <strong>Loading...</strong>
       </div>
-      <div v-show='!modalLoading'>
+      <div v-show='!modalData.loading'>
         <b-form id='itemDetailsForm' ref='itemDetailsForm'>
           <slot name='formGroups' :item='selected' :isNew='isNew' :form='`itemDetailsForm`'></slot>
         </b-form>
@@ -150,6 +150,12 @@
     },
     data() {
       return {
+        isNew: false,
+        modalData: {
+          processClicks: true,
+          loading: true,
+        },
+        selected: {},
         tableData: {
           currentPage: 1,
           errorMessage: null,
@@ -158,13 +164,12 @@
           retrieveItems: true,
           totalRows: 0,
         },
-        isNew: false,
-        modalLoading: true,
-        selected: {},
       }
     },
     methods: {
       afterModalChange() {
+        // We're done with whatever change we attempted
+        this.modalData.processClicks = true
         this.$bvModal.hide(this.modalRef)
         this.refreshItems()
       },
@@ -223,12 +228,20 @@
           return
         }
 
+        if (!this.modalData.processClicks) {
+          // This ensures that if someone double clicks the OK button, we don't process it
+          return
+        }
+
+        // We're about to process updates, make sure to disable the click handling
+        this.modalData.processClicks = false
+        
         if (this.isNew) {
           // This is a create
           this.createItemPromise(this.selected)
           .then(() => this.afterModalChange())
           .catch(err => {
-            this.$bvModal.msgBoxOk(`Unable to create ${this.itemClass.type.toLowerCase()} ${this.selected.displayIdentifier()}: ${errorToString(err)}`)
+            this.$bvModal.msgBoxOk(`Unable to create ${this.itemClass.type.toLowerCase()}: ${errorToString(err)}`)
           })
         } else {
           //This is an update
@@ -299,11 +312,12 @@
         this.table.selectRow(index)
       },
       showModal() {
-        this.modalLoading = true
+        this.modalData.loading = true
+        this.modalData.processClicks = true
         for (const property in this.validationStates) {
           this.validationStates[property] = null
         }
-        Promise.resolve(this.showModalCallback(this.selected, this.isNew)).finally(() => this.modalLoading = false)
+        Promise.resolve(this.showModalCallback(this.selected, this.isNew)).finally(() => this.modalData.loading = false)
       },
       toCell(slot) {
         return `cell(${slot})`
