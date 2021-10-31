@@ -35,8 +35,7 @@
         <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
       </template>
       <template #color='props'>
-        <div v-if='props.item.color != null' :style='toColorStyle(props.item.color.html)' class='w-100' v-b-tooltip.v-primary='`${props.item.color.html}`'>&nbsp;</div>
-        <span v-if='props.item.color === null' class='text-muted'>&lt;default&gt;</span>
+        <color :color='props.item.color ? props.item.color : {}'></color>
       </template>
       <template #sound='props'>
         <b-link v-if='props.item.sound' :to="{ name: 'SoundList', query: { filter: `${props.item.sound.name}` } }">{{ props.item.sound.name }}</b-link>
@@ -48,6 +47,7 @@
   </div>
 </template>
 <script>
+  import Color from '../common/Color'
   import {Guest} from '@/components/model'
   import List from '../common/List'
   import SoundPlayer from '../common/SoundPlayer'
@@ -56,6 +56,7 @@
     components: {
       'item-list': List,
       'sound-player': SoundPlayer,
+      'color': Color,
     },
     computed: {
       colorInput: function() {
@@ -142,6 +143,7 @@
       showModal(item) {
         if (item.color) {
           this.color = item.color.html
+          this.systemDefaultColorChecked = false
         } else {
           // Vue.js doesn't like it when we set a color input to ''/null
           // default color is black (#000000) so default it to that
@@ -151,6 +153,7 @@
 
         if (item.sound) {
           this.sound = item.sound.id
+          this.systemDefaultSoundChecked = false
         } else {
           this.systemDefaultSoundChecked = true
         }
@@ -167,11 +170,6 @@
           // Because we don't want to unselect it, disable it
           //this.$refs.soundDefault.disabled = true
         })
-      },
-      toColorStyle(color) {
-        if (color) {
-          return `background-color: ${color}`
-        }
       },
       updateItemPromise: function(item) {
         return this.$RFIDSecuritySvc.guests.update(item.id, item.firstName, item.lastName, this.soundInput, this.colorInput)
