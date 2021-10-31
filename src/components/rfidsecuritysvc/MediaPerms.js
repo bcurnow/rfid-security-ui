@@ -13,7 +13,7 @@ const svc = {
     return api.delete(combineURLs(BASE_URL, String(id)), {})
   },
   get: async function(id) {
-    const response = await api.get(combineURLs(BASE_URL, id), {})
+    const response = await api.get(combineURLs(BASE_URL, String(id)), {})
     return new MediaPerm(response.data)
   },
   list: async function() {
