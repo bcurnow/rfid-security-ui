@@ -7,6 +7,7 @@
       :fields='fields'
       :itemClass='itemClass'
       :itemsPromise='itemsPromise'
+      :rowSelected='guestSelected'
       :showModalCallback='showModal'
       :updateItemPromise='updateItemPromise'
       :validationStates='validationStates'>
@@ -24,11 +25,11 @@
           <b-checkbox class='mb-1' id='defaultSound' ref='defaultSound' v-model='systemDefaultSoundChecked' switch>System Default</b-checkbox>
           <b-form-select id='sound-select' v-model='sound' :options='allSounds' text-field='name' value-field='id' :disabled='systemDefaultSoundChecked' :state='validationStates.sound' @invalid='validationStates.sound = false' :required='!systemDefaultSoundChecked' autofocus></b-form-select>
         </b-form-group>
-        <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
         <b-form-group label='Default Color:' label-for='color-input'>
           <b-checkbox class='mb-1' id='defaultColor' v-model='systemDefaultColorChecked' switch>System Default</b-checkbox>
           <b-form-input id='color-input' v-model='color' placeholder='Guest Default Color' type='color' :disabled='systemDefaultColorChecked'></b-form-input>
         </b-form-group>
+        <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
       </template>
       <template #customControlsPre='props'>
         <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
@@ -43,6 +44,7 @@
       </template>
     </item-list>
     <sound-player :soundName='playerSound'></sound-player>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -79,11 +81,6 @@
         customRenderFields: ['color', 'sound'],
         errorResolver: this.$RFIDSecuritySvc.errorToString,
         fields: [
-          {
-            key: 'id',
-            label: 'ID',
-            sortable: true,
-          },
           {
             key: 'firstName',
             sortable: true,
@@ -127,11 +124,23 @@
       deleteItemPromise: function(item) {
         return this.$RFIDSecuritySvc.guests.delete(item.id)
       },
+      guestSelected: function(selectedRows) {
+        if (selectedRows.length === 0) {
+          if (this.$route.name != 'GuestList') {
+            this.$router.push({ name: 'GuestList' })
+          }
+        } else {
+          let item = selectedRows[0]
+          if (this.$route.name != 'GuestMedia' || this.$route.params.guestId != item.id) {
+            this.$router.push({ name: 'GuestMedia', params: { guestId: item.id } })
+          }
+        }
+      },
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.guests.list()
       },
-      showModal(item, finishCallback) {
-        if (item.color != null) {
+      showModal(item) {
+        if (item.color) {
           this.color = item.color.html
         } else {
           // Vue.js doesn't like it when we set a color input to ''/null
@@ -150,7 +159,6 @@
         .then(response => {
           response.sort((a,b) => (a.name > b.name) ? 1 : -1)
           this.allSounds = response
-          finishCallback()
         })
         .catch(err => {
           this.modalError = `Unable to load sounds: ${this.$RFIDSecuritySvc.errorToString(err)}`
@@ -158,7 +166,6 @@
           this.systemDefaultSoundChecked = true
           // Because we don't want to unselect it, disable it
           //this.$refs.soundDefault.disabled = true
-          finishCallback()
         })
       },
       toColorStyle(color) {
