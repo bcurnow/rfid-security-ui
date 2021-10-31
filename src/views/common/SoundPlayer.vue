@@ -1,5 +1,5 @@
 <template>
-  <b-modal id='sound-player' title='Sound Player' @show='showModal' ok-only>
+  <b-modal :id='id' :title='title' @show='showModal' ok-only>
     <div class='text-center'>
       <audio controls autoplay>
         <source :src='url' type='audio/wav'>
@@ -22,9 +22,19 @@ export default {
     }
   },
   props: {
+    id: {
+      type: String,
+      required: false,
+      default: 'sound-player'
+    },
     soundName: {
       type: String,
       required: true,
+    },
+    title: {
+      type: String,
+      required: false,
+      default: 'Sound Player'
     },
   }
 }
