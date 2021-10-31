@@ -1,5 +1,6 @@
 import List from '@/views/guests/List.vue'
 import Media from '@/views/guests/Media.vue'
+import Permissions from '@/views/media/Permissions.vue'
 
 const routes = [
   {
@@ -11,6 +12,13 @@ const routes = [
         path: ':guestId/media',
         name: 'GuestMedia',
         component: Media,
+        children: [
+          {
+            path: ':mediaId/permissions',
+            name: 'GuestMediaPermissions',
+            component: Permissions,
+          },
+        ],
       },
     ],
   },
