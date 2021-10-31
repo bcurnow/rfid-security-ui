@@ -1,5 +1,6 @@
 import configSvc from './Config'
 import guestSvc from './Guests'
+import guestMediaSvc from './GuestMedia'
 import errorToString from '@/components/Error.js'
 import mediaSvc from './Media'
 import mediaPermSvc from './MediaPerms'
@@ -11,6 +12,7 @@ import soundSvc from './Sound'
 const RFIDSecuritySvc = {
   config: configSvc,
   errorToString: errorToString,
+  guestMedia: guestMediaSvc,
   guests: guestSvc,
   media: mediaSvc,
   mediaPerms: mediaPermSvc,
