@@ -20,6 +20,10 @@ const svc = {
     const response = await api.get(BASE_URL, {})
     return response.data.map(api => new Media(api))
   },
+  listUnassociated: async function() {
+    const response = await api.get(BASE_URL, { params: { excludeAssociated: true } })
+    return response.data.map(api => new Media(api))
+  },
   update: function(id, name, desc) {
     return api.put(combineURLs(BASE_URL, id), {
       name: name,
