@@ -42,7 +42,7 @@
         <span v-if='!props.item.sound' class='text-muted'>&lt;default&gt;</span>
       </template>
     </item-list>
-    <sound-player :soundName='playerSound'></sound-player>
+    <sound-player id='guestSoundPlayer' :soundName='playerSound'></sound-player>
     <router-view></router-view>
   </div>
 </template>
