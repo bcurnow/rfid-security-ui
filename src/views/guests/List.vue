@@ -7,6 +7,7 @@
       :fields='fields'
       :itemClass='itemClass'
       :itemsPromise='itemsPromise'
+      ref='Guests'
       :rowSelected='guestSelected'
       :showModalCallback='showModal'
       :updateItemPromise='updateItemPromise'
@@ -33,6 +34,9 @@
       </template>
       <template #customControlsPre='props'>
         <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
+      </template>
+      <template #customControlsPost='props'>
+        <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'GuestMedia', params: { guestId: props.item.id } }" v-b-tooltip.v-primary="'Media'" @click='$refs.Guests.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='file-lock'></b-icon></b-button>
       </template>
       <template #color='props'>
         <color :color='props.item.color ? props.item.color : {}'></color>
@@ -127,8 +131,8 @@
       },
       guestSelected: function(selectedRows) {
         if (selectedRows.length === 0) {
-          if (this.$route.name != 'GuestList') {
-            this.$router.push({ name: 'GuestList' })
+          if (this.$route.name != 'GuestsList') {
+            this.$router.push({ name: 'GuestsList' })
           }
         } else {
           let item = selectedRows[0]
@@ -140,7 +144,7 @@
       itemsPromise: function() {
         return this.$RFIDSecuritySvc.guests.list()
       },
-      showModal(item) {
+      async showModal(item) {
         if (item.color) {
           this.color = item.color.html
           this.systemDefaultColorChecked = false
@@ -158,18 +162,13 @@
           this.systemDefaultSoundChecked = true
         }
 
-        this.$RFIDSecuritySvc.sound.list()
-        .then(response => {
-          response.sort((a,b) => (a.name > b.name) ? 1 : -1)
-          this.allSounds = response
-        })
-        .catch(err => {
+        try {
+          this.allSounds = await this.$RFIDSecuritySvc.sound.list().sort((a,b) => (a.name > b.name) ? 1 : -1)
+        } catch(err) {
           this.modalError = `Unable to load sounds: ${this.$RFIDSecuritySvc.errorToString(err)}`
           // Because we can't load the sounds, the only option will be the system default
           this.systemDefaultSoundChecked = true
-          // Because we don't want to unselect it, disable it
-          //this.$refs.soundDefault.disabled = true
-        })
+        }
       },
       updateItemPromise: function(item) {
         return this.$RFIDSecuritySvc.guests.update(item.id, item.firstName, item.lastName, this.soundInput, this.colorInput)
