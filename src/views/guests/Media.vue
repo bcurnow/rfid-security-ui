@@ -227,6 +227,7 @@
 
         try {
           this.allSounds = await this.$RFIDSecuritySvc.sound.list()
+          this.allSounds.sort((a,b) => (a.name > b.name) ? 1 : -1)
         } catch (err) {
           this.modalError = `Unable to load sounds: ${this.$RFIDSecuritySvc.errorToString(err)}`
         }
