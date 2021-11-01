@@ -235,7 +235,7 @@
 
         // We're about to process updates, make sure to disable the click handling
         this.modalData.processClicks = false
-        
+
         if (this.isNew) {
           // This is a create
           this.createItemPromise(this.selected)
@@ -385,9 +385,7 @@
       },
       showModalCallback: {
         type: Function,
-        default: function(item, finishedCallback) {
-          finishedCallback()
-        },
+        default: function() {},
       },
       sortBy: {
         type: String,
