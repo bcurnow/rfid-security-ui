@@ -33,7 +33,7 @@
         <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
       </template>
       <template #customControlsPre='props'>
-        <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
+        <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.guestSoundPlayer variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
       </template>
       <template #customControlsPost='props'>
         <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'GuestMedia', params: { guestId: props.item.id } }" v-b-tooltip.v-primary="'Media'" @click='$refs.Guests.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='file-lock'></b-icon></b-button>
@@ -163,7 +163,8 @@
         }
 
         try {
-          this.allSounds = await this.$RFIDSecuritySvc.sound.list().sort((a,b) => (a.name > b.name) ? 1 : -1)
+          this.allSounds = await this.$RFIDSecuritySvc.sound.list()
+          this.allSounds.sort((a,b) => (a.name > b.name) ? 1 : -1)
         } catch(err) {
           this.modalError = `Unable to load sounds: ${this.$RFIDSecuritySvc.errorToString(err)}`
           // Because we can't load the sounds, the only option will be the system default
