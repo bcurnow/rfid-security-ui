@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div v-if='color != null' :style='toColorStyle(color.html)' class='w-100' v-b-tooltip.v-primary='`${color.html}`'>&nbsp;</div>
-    <p v-if='color === null' class='text-muted'>{{ nullColorValue }}</p>
+    <div v-if='color.html' :style='toColorStyle(color.html)' class='w-100' v-b-tooltip.v-primary='`${color.html}`'>&nbsp;</div>
+    <span v-else class='text-muted'>{{ nullColorValue }}</span>
   </div>
 </template>
 
