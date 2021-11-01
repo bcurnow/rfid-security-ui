@@ -4,9 +4,11 @@ import '@/plugins'
 import App from '@/App.vue'
 import router from '@/router'
 import config from '@/config'
-import {name, version} from '../package'
 import RFIDSecuritySvc from '@/components/rfidsecuritysvc'
 
+
+const version = process.env.PACKAGE_VERSION || 0
+const name = process.env.PACKAGE_NAME || 'rfid-security-svc'
 
 config.appVersion = `${name} v${version}`
 

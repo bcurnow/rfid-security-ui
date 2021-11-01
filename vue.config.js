@@ -1,4 +1,20 @@
+const fs = require('fs')
+const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+const version = packageJson.version || 0
+const appName = packageJson.name || 'rfid-security-ui'
+const webpack = require('webpack')
+
 module.exports = {
+  configureWebpack: {
+      plugins: [
+          new webpack.DefinePlugin({
+              'process.env': {
+                  PACKAGE_VERSION: '"' + version + '"',
+                  PACKAGE_NAME: '"' + appName + '"',
+              }
+          })
+      ]
+  },
   devServer: {
     disableHostCheck: process.env.WEBPACK_DISABLE_HOST_CHECK === 'true' || false,
     historyApiFallback: true,
