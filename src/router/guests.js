@@ -1,6 +1,6 @@
-import List from '@/views/guests/List.vue'
-import Media from '@/views/guests/Media.vue'
-import Permissions from '@/views/media/Permissions.vue'
+const List = resolve => require(['@/views/guests/List.vue'], resolve);
+const Media = resolve => require(['@/views/guests/Media.vue'], resolve);
+const Permissions = resolve => require(['@/views/media/Permissions.vue'], resolve);
 
 const routes = [
   {
