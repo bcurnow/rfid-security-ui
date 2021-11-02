@@ -6,14 +6,13 @@ const webpack = require('webpack')
 
 module.exports = {
   configureWebpack: {
-      plugins: [
-          new webpack.DefinePlugin({
-              'process.env': {
-                  PACKAGE_VERSION: '"' + version + '"',
-                  PACKAGE_NAME: '"' + appName + '"',
-              }
-          })
-      ]
+    devtool: process.env.NODE_ENV == 'production' ? false : true,
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.PACKAGE_VERSION': JSON.stringify(version),
+            'process.env.PACKAGE_NAME': JSON.stringify(appName),
+        })
+    ],
   },
   devServer: {
     disableHostCheck: process.env.WEBPACK_DISABLE_HOST_CHECK === 'true' || false,
