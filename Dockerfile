@@ -47,10 +47,13 @@ WORKDIR /package
 
 COPY package*.json ./
 RUN npm install
-COPY ./ .
+COPY src ./src/
+COPY public ./public/
+COPY babel.config.js ./
+COPY vue.config.js ./
 RUN npm run build
 
 FROM nginx as prod_build
 RUN mkdir /app
 COPY --from=packager /package/dist /app
-COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/rfidsecurityui.template /etc/nginx/templates/default.conf.template
