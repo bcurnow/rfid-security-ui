@@ -1,14 +1,30 @@
-FROM node:14 AS dev_image
+FROM node:14-alpine AS dev_image
 
 ARG USER_ID
 ARG GROUP_ID
+
+RUN npm install -g @vue/cli @vue/cli-init @vue/cli-service sass
+
+RUN apk update && apk add \
+      bash \
+      fontconfig \
+      git \
+      less \
+      openssl \
+      shadow \
+      sudo \
+      vim
+
+# Install phantomjs
+RUN git clone https://github.com/piksel/phantomjs-raspberrypi.git \
+    && cp phantomjs-raspberrypi/bin/phantomjs /usr/local/bin
 
 # Don't attempt to remap the root user (uid=0) or group (gid=0)
 # Otherwise reconfigure the node user to map the uid/gid passed in
 RUN if [ ${GROUP_ID:-0} -ne 0 ] && [ ${USER_ID:-0} -ne 0 ]; then \
         groupmod --gid ${GROUP_ID} node \
         && usermod --uid ${USER_ID} node \
-        ;\
+        ; \
     fi
 
 # Setup the node user with a home directory and sudo permissions
@@ -18,27 +34,13 @@ RUN install -d -m 0755 -o node -g node /home/node  \
 
 COPY ./docker-files/home/.* /docker-files/home/* /home/node/
 
-RUN apt-get update && apt-get -y install --no-install-recommends \
-      fontconfig \
-      less \
-      libssl1.0.2 \
-      sudo \
-      vim \
- && rm -rf /var/lib/apt/lists/*
-
-# Install phantomjs
-RUN git clone https://github.com/piksel/phantomjs-raspberrypi.git \
- && cp phantomjs-raspberrypi/bin/phantomjs /usr/local/bin
-
-RUN npm install -g @vue/cli @vue/cli-init @vue/cli-service sass
-
 USER node
 
 WORKDIR /rfid-security-ui
 
 EXPOSE 8080
 
-CMD ['npm', 'run', 'serve']
+CMD ["npm", "run", "serve"]
 
 FROM dev_image AS packager
 
