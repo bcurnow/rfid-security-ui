@@ -1,4 +1,4 @@
-const List = resolve => require(['@/views/config/List.vue'], resolve);
+import List from '@/views/config/List.vue'
 
 const routes = [
   {

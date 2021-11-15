@@ -1,4 +1,4 @@
-const List = resolve => require(['@/views/sound/List.vue'], resolve);
+import List from '@/views/sound/List.vue'
 
 const routes = [
   {

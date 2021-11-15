@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-const Home = resolve => require(['@/views/Home.vue'], resolve);
-const configRoutes = resolve => require(['./config.js'], resolve);
-const guestRoutes = resolve => require(['./guests.js'], resolve);
-const mediaRoutes = resolve => require(['./media.js'], resolve);
-const permissionRoutes = resolve => require(['./permission.js'], resolve);
-const soundRoutes = resolve => require(['./sound.js'], resolve);
+import Home from '@/views/Home.vue'
+import configRoutes from './config.js'
+import guestRoutes from './guests.js'
+import mediaRoutes from './media.js'
+import permissionRoutes from './permission.js'
+import soundRoutes from './sound.js'
 
 Vue.use(VueRouter)
 
