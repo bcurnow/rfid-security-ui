@@ -21,10 +21,11 @@ services:
       - rfid-db:/rfid-db
   rfidsecurityui:
     build:
-      context: ../rfid-security-ui
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+      context: ../rfid-security-ui
+      target: dev_image
     container_name: rfidsecurityui
     depends_on:
       - rfidsecuritysvc
