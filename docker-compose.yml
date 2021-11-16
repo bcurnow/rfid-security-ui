@@ -30,7 +30,6 @@ services:
     depends_on:
       - rfidsecuritysvc
     environment:
-      VUE_APP_RFID_API_URL: 'rfidsecuritysvc:5000/api/v1.0'
       WEBPACK_PUBLIC: 'devpi.local:8080'
       WEBPACK_DISABLE_HOST_CHECK: 'true'
     image: rfid-security-ui:latest
