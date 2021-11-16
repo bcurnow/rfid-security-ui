@@ -4,9 +4,6 @@ import config from '@/config'
 const axiosInstance = axios.create({
       baseURL: config.apiUrl,
       timeout: 10 * 1000,
-      headers: {
-        'X-RFIDSECURITYSVC-API-KEY': config.apiKey,
-      }
   })
 
 // Always post using JSON
