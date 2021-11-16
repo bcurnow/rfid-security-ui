@@ -22,7 +22,10 @@ module.exports = {
     public: process.env.WEBPACK_PUBLIC || 'localhost:8080',
     proxy: {
       '/api': {
-        target: 'http://rfidsecuritysvc:5000',
+        target: process.env.VUE_APP_PROXY_TARGET || 'http://rfidsecuritysvc:5000'
+        headers: {
+          'X-RFIDSECURITYSVC-API-KEY': process.env.VUE_APP_RFID_API_KEY
+        }
       },
     },
   },
