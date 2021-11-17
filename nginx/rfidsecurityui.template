@@ -11,8 +11,8 @@ server {
 
   location /api/ {
     proxy_pass          ${API_URL};
-    proxy_set_header    X-RFIDSECURITYSVC-API-KEY ${API_KEY}
-    proxy_hide_header   X-RFIDSECURITYSVC-API-KEY
+    proxy_set_header    X-RFIDSECURITYSVC-API-KEY ${API_KEY};
+    proxy_hide_header   X-RFIDSECURITYSVC-API-KEY;
   }
 
   location = /50x.html {
