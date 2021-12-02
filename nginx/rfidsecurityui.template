@@ -1,6 +1,7 @@
 server {
   error_page            500 502 503 504  /50x.html;
   listen                80;
+  client_max_body_size  10M;
   server_name           localhost;
 
   location / {
