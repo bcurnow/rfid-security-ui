@@ -1,41 +1,31 @@
 <template>
-  <b-modal :id='id' :title='title' @show='showModal' ok-only>
-    <div class='text-center'>
+  <BModal :id="id" :title="title" @show="showModal" ok-only>
+    <div class="text-center">
       <audio controls autoplay>
-        <source :src='url' type='audio/wav'>
+        <source :src="url" type="audio/wav" />
         Your browser does not support the <code>audio</code> element.
       </audio>
     </div>
-  </b-modal>
+  </BModal>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      url: '',
-    }
-  },
-  methods: {
-    showModal() {
-      this.url = this.$RFIDSecuritySvc.player.url(this.soundName)
-    }
-  },
-  props: {
-    id: {
-      type: String,
-      required: false,
-      default: 'sound-player'
-    },
-    soundName: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: false,
-      default: 'Sound Player'
-    },
-  }
+<script setup lang="ts">
+import { ref, getCurrentInstance } from 'vue'
+
+const props = withDefaults(defineProps<{
+  id?: string
+  soundName: string
+  title?: string
+}>(), {
+  id: 'sound-player',
+  title: 'Sound Player',
+})
+
+const url = ref<string>('')
+
+function showModal(): void {
+  const instance = getCurrentInstance()
+  const RFIDSecuritySvc = instance?.appContext.config.globalProperties.$RFIDSecuritySvc
+  url.value = RFIDSecuritySvc?.player.url(props.soundName) ?? ''
 }
 </script>

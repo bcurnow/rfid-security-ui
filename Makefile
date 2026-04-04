@@ -6,7 +6,7 @@ imageName := $(notdir $(patsubst %/,%,$(dir $(currentDir))))
 currentUser := $(shell id -u)
 currentGroup := $(shell id -g)
 
-build-docker:
+build:
 	docker build \
 	  --target dev_image \
 	  --build-arg USER_ID=${currentUser} \
@@ -14,16 +14,11 @@ build-docker:
 	  -t ${imageName}:latest  \
 	  ${currentDir}
 
-build-docker-prod:
+build-prod:
 	docker build --platform linux/arm/v6 -t ${imageName}:production ${currentDir}
 
-run-docker:
+docker:
 	docker run -it -e WEBPACK_DISABLE_HOST_CHECK=true -p 9090:8080 --mount src="${currentDir}",target=/${imageName},type=bind ${imageName}:latest /bin/bash
-
-dev: run-docker
 
 run:
 	npm run serve
-
-clear:
-	clear

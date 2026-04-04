@@ -1,61 +1,61 @@
 <template>
-  <div id='app'>
-    <b-navbar toggleable='lg' type='dark' variant='primary' fixed='top' class='font-weight-bold'>
-      <b-navbar-brand>
-        <b-link to='/' class='d-flex align-items-center text-light'><b-icon icon='broadcast' font-scale='2' variant='light' class='mr-1'></b-icon> RFID Security Manager</b-link>
-      </b-navbar-brand>
+  <div id="app">
+    <BNavbar toggleable="lg" type="dark" variant="primary" fixed="top" class="fw-bold">
+      <BNavbarBrand>
+        <BLink to="/" class="d-flex align-items-center text-light">
+          <i class="bi bi-broadcast-pin fs-2 text-light me-1"></i> RFID Security Manager
+        </BLink>
+      </BNavbarBrand>
 
-      <b-navbar-toggle target='nav-collapse'></b-navbar-toggle>
+      <BNavbarToggle target="nav-collapse" />
 
-      <b-collapse id='nav-collapse' is-nav>
-        <b-navbar-nav>
-          <b-nav-item to='/guests'>
-            <b-icon icon='people-fill' class='mr-1'></b-icon>
+      <BCollapse id="nav-collapse" is-nav>
+        <BNavbarNav>
+          <BNavItem to="/guests">
+            <i class="bi bi-people-fill me-1"></i>
             Guests
-          </b-nav-item>
-          <b-nav-item to='/media'>
-            <b-icon icon='file-lock' class='mr-1'></b-icon>
+          </BNavItem>
+          <BNavItem to="/media">
+            <i class="bi bi-file-lock me-1"></i>
             Media
-          </b-nav-item>
-          <b-nav-item to='/permissions'>
-            <b-icon icon='lock-fill' class='mr-1'></b-icon>
+          </BNavItem>
+          <BNavItem to="/permissions">
+            <i class="bi bi-lock-fill me-1"></i>
             Permissions
-          </b-nav-item>
-        </b-navbar-nav>
+          </BNavItem>
+        </BNavbarNav>
 
         <!-- Right aligned nav items -->
-        <b-navbar-nav class='ml-auto'>
-          <b-nav-item to='/configs'>
-            <b-icon icon='gear' class='mr-1'></b-icon>
+        <BNavbarNav class="ms-auto">
+          <BNavItem to="/configs">
+            <i class="bi bi-gear me-1"></i>
             Configs
-          </b-nav-item>
-          <b-nav-item to='/sounds'>
-            <b-icon icon='music-note-list' class='mr-1'></b-icon>
+          </BNavItem>
+          <BNavItem to="/sounds">
+            <i class="bi bi-music-note-list me-1"></i>
             Sounds
-          </b-nav-item>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
-    <router-view class='pt-3'></router-view>
-    <b-container class='footer fixed-bottom' variant='primary' fluid>
-      <b-row>
-        <b-col></b-col>
-        <b-col class='text-center'>{{ this.$config.appVersion }}</b-col>
-        <b-col></b-col>
-      </b-row>
-    </b-container>
+          </BNavItem>
+        </BNavbarNav>
+      </BCollapse>
+    </BNavbar>
+
+    <RouterView class="pt-3" />
+
+    <BContainer class="footer fixed-bottom" fluid>
+      <BRow>
+        <BCol />
+        <BCol class="text-center">{{ $config.appVersion }}</BCol>
+        <BCol />
+      </BRow>
+    </BContainer>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App',
-}
+<script setup lang="ts">
+defineOptions({ name: 'App' })
 </script>
 
-<style lang='scss'>
-@import '~@/assets/scss/app.scss';
-
+<style lang="scss" scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -64,11 +64,9 @@ export default {
   text-align: center;
   margin-top: 60px;
 }
-</style>
 
-<style lang='scss' scoped>
 .footer {
-  background-color: var(--primary);
-  color: var(--light);
+  background-color: var(--bs-primary);
+  color: var(--bs-light);
 }
 </style>

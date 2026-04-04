@@ -1,5 +1,5 @@
 <template>
-  <div class='container text-left'>
+  <div class='container text-start'>
     <item-list
       :createItemPromise='createItemPromise'
       :customRenderFields='customRenderFields'
@@ -40,10 +40,10 @@
         <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
       </template>
       <template #customControlsPre='props'>
-        <b-button v-if='props.item.sound' size='sm' class='ml-1' v-b-modal.guestMediaSoundPlayer variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
+        <b-button v-if='props.item.sound' size='sm' class='ms-1' v-b-modal.guestMediaSoundPlayer variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><i class='bi bi-play-fill me-1 mt-1 mb-1'></i></b-button>
       </template>
       <template #customControlsPost='props'>
-        <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'GuestMediaPermissions', params: { mediaId: props.item.media.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.GuestMedia.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='key'></b-icon></b-button>
+        <b-button size='sm' class='ms-1' variant='primary' :to="{ name: 'GuestMediaPermissions', params: { mediaId: props.item.media.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.GuestMedia.selectRow(props.index)' pill><i class='bi bi-key-fill me-1 mt-1 mb-1'></i></b-button>
       </template>
       <template #empty>No media found for {{ guestName }} ({{ $route.params.guestId }})</template>
       <template #color='props'>
@@ -60,9 +60,9 @@
 </template>
 <script>
   import {GuestMedia} from '@/components/model'
-  import Color from '../common/Color'
-  import List from '../common/List'
-  import SoundPlayer from '../common/SoundPlayer'
+  import Color from '@/views/common/Color.vue'
+  import List from '@/views/common/List.vue'
+  import SoundPlayer from '@/views/common/SoundPlayer.vue'
 
   export default {
     components: {

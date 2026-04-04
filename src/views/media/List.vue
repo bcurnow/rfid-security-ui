@@ -1,5 +1,5 @@
 <template>
-  <div class='container text-left'>
+  <div class='container text-start'>
     <item-list
       :createItemPromise='createItemPromise'
       :customRenderFields='customRenderFields'
@@ -13,7 +13,7 @@
       :validationStates='validationStates'>
       <template #headerMessage>Select a row to see associated permissions</template>
       <template #customControlsPost='props'>
-        <b-button size='sm' class='ml-1' variant='primary' :to="{ name: 'MediaPermissions', params: { mediaId: props.item.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.Media.selectRow(props.index)' pill><b-icon class='mb-1 mt-1' icon='key'></b-icon></b-button>
+        <b-button size='sm' class='ms-1' variant='primary' :to="{ name: 'MediaPermissions', params: { mediaId: props.item.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.Media.selectRow(props.index)' pill><i class='bi bi-key-fill me-1 mt-1 mb-1'></i></b-button>
       </template>
       <template #id='props'>
         {{ selectRow(props) }}
@@ -43,7 +43,7 @@
   </div>
 </template>
 <script>
-  import List from '../common/List'
+  import List from '@/views/common/List.vue'
   import {Media} from '@/components/model'
 
   export default {

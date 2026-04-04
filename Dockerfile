@@ -55,7 +55,7 @@ COPY babel.config.js ./
 COPY vue.config.js ./
 RUN npm run build
 
-FROM nginx as prod_build
+FROM nginx AS prod_build
 RUN mkdir /app
 COPY --from=packager /package/dist /app
 COPY nginx/rfidsecurityui.template /etc/nginx/templates/default.conf.template

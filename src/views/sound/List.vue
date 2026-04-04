@@ -1,5 +1,5 @@
 <template>
-  <div class='container text-left'>
+  <div class='container text-start'>
     <item-list
       :createItemPromise='createItemPromise'
       :deleteItemPromise='deleteItemPromise'
@@ -17,16 +17,16 @@
         </b-form-group>
       </template>
       <template #customControlsPost='props'>
-        <b-button size='sm' class='ml-1' v-b-modal.sound-player variant='primary' @click='soundName = props.item.name' v-b-tooltip.v-primary="'Play'" pill><b-icon class='mb-1 mt-1' icon='play'></b-icon></b-button>
+        <b-button size='sm' class='ms-1' v-b-modal.sound-player variant='primary' @click='soundName = props.item.name' v-b-tooltip.v-primary="'Play'" pill><i class='bi bi-play-fill me-1 mt-1 mb-1'></i></b-button>
       </template>
     </item-list>
     <sound-player :soundName='soundName'></sound-player>
   </div>
 </template>
 <script>
-  import List from '../common/List'
+  import List from '@/views/common/List.vue'
   import {Sound} from '@/components/model'
-  import SoundPlayer from '../common/SoundPlayer'
+  import SoundPlayer from '@/views/common/SoundPlayer.vue'
 
   export default {
     components: {

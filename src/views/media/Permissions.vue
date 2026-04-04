@@ -1,5 +1,5 @@
 <template>
-  <div class='container text-left'>
+  <div class='container text-start'>
     <item-list
       :createItemPromise='createItemPromise'
       :customRenderFields='customRenderFields'
@@ -38,7 +38,7 @@
   </div>
 </template>
 <script>
-  import List from '../common/List'
+  import List from '@/views/common/List.vue'
   import {MediaPerm} from '@/components/model'
 
   export default {
