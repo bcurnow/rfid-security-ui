@@ -1,179 +1,178 @@
 <template>
-  <div class='container text-start'>
-    <item-list
-      :createItemPromise='createItemPromise'
-      :customRenderFields='customRenderFields'
-      :deleteItemPromise='deleteItemPromise'
-      :fields='fields'
-      :itemClass='itemClass'
-      :itemsPromise='itemsPromise'
-      ref='Guests'
-      :rowSelected='guestSelected'
-      :showModalCallback='showModal'
-      :updateItemPromise='updateItemPromise'
-      :validationStates='validationStates'>
-      <template #formGroups='props'>
-        <b-form-group label='ID:' label-for='id-input' v-if='!props.isNew'>
-          <b-form-input id='id-input' v-model='props.item.id' readonly></b-form-input>
-        </b-form-group>
-        <b-form-group label='First Name:' label-for='firstname-input' invalid-feedback='A first name is required!'>
-          <b-form-input id='firstname-input' v-model='props.item.firstName' :state='validationStates.firstname' @invalid='validationStates.firstname = false' placeholder='Guest First Name' required></b-form-input>
-        </b-form-group>
-        <b-form-group label='Last Name:' label-for='lastname-input' invalid-feedback='A last name is required!'>
-          <b-form-input id='lastname-input' v-model='props.item.lastName' :state='validationStates.lastname' @invalid='validationStates.lastname = false' placeholder='Guest Last Name' required></b-form-input>
-        </b-form-group>
-        <b-form-group label='Default Sound:' label-for='sound-select' invalid-feedback='Must select a sound or enable the system default!'>
-          <b-checkbox class='mb-1' id='defaultSound' ref='defaultSound' v-model='systemDefaultSoundChecked' switch>System Default</b-checkbox>
-          <b-form-select id='sound-select' v-model='sound' :options='allSounds' text-field='name' value-field='id' :disabled='systemDefaultSoundChecked' :state='validationStates.sound' @invalid='validationStates.sound = false' :required='!systemDefaultSoundChecked' autofocus></b-form-select>
-        </b-form-group>
-        <b-form-group label='Default Color:' label-for='color-input'>
-          <b-checkbox class='mb-1' id='defaultColor' v-model='systemDefaultColorChecked' switch>System Default</b-checkbox>
-          <b-form-input id='color-input' v-model='color' placeholder='Guest Default Color' type='color' :disabled='systemDefaultColorChecked'></b-form-input>
-        </b-form-group>
-        <b-alert show variant='danger' v-if='modalError' dismissible>{{ modalError }}</b-alert>
+  <div>
+    <AppList :config="config" ref="guestsList">
+      <template #itemDetailsForm='row'>
+        <BFormGroup class="mb-1" label='ID:' label-for='id-input' v-if='!row.isNew' label-cols="auto">
+          <BFormInput id='id-input' v-model='row.item.id' plaintext></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='First Name' label-for='firstname-input'
+                    invalid-feedback='A first name is required' floating>
+          <BFormInput id='firstname-input' v-model='row.item.firstName' placeholder='First Name' required>
+          </BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Last Name' label-for='lastname-input' invalid-feedback='A last name is required'
+                    floating>
+          <BFormInput id='lastname-input' v-model='row.item.lastName' placeholder='Last Name' required></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Sound' label-for='sound-select'
+                    invalid-feedback='Must select a sound or enable the default' :state="soundValidationState">
+          <BInputGroup>
+            <BInputGroupText>
+              <BFormCheckbox id='defaultSound' v-model='useDefaultSoundChecked' switch>Use Default</BFormCheckbox>
+            </BInputGroupText>
+            <BFormSelect id='sound-select' v-model='sound' :options='allSounds' text-field='name' value-field='id'
+                         :disabled='useDefaultSoundChecked' :required='!useDefaultSoundChecked'
+                         :state="soundValidationState"></BFormSelect>
+            <BButton variant="outline-secondary" :disabled="isRefreshingSounds || useDefaultSoundChecked"
+                     @click="refreshSounds">
+              <VueFeather :type="isRefreshingSounds ? 'loader' : 'refresh-cw'" size="14" />
+            </BButton>
+          </BInputGroup>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Color' label-for='color-input'
+                    invalid-feedback='Must select a color or enable the default'>
+          <BInputGroup>
+            <BInputGroupText>
+              <BFormCheckbox id='defaultColor' v-model='useDefaultColorChecked' switch>Use Default</BFormCheckbox>
+            </BInputGroupText>
+            <BFormInput id='color-input' v-model='color' placeholder='Color' type='color'
+                        :disabled='useDefaultColorChecked'></BFormInput>
+          </BInputGroup>
+        </BFormGroup>
+        <BAlert :model-value="!!modalError" variant='danger' class="mt-2" dismissible>{{ modalError }}</BAlert>
       </template>
-      <template #customControlsPre='props'>
-        <b-button v-if='props.item.sound' size='sm' class='ms-1' v-b-modal.guestSoundPlayer variant='primary' @click='playerSound = props.item.sound.name' v-b-tooltip.v-primary="'Play'" pill><i class='bi bi-play-fill me-1 mt-1 mb-1'></i></b-button>
+      <template #customControlsPre='row'>
+        <BButton v-if='row.item.sound' size='sm' variant='primary'
+                 v-b-tooltip.v-primary="'Play'" pill @click.stop="play(row.item.sound.name)">
+          <VueFeather type="play" size="16" />
+        </BButton>
       </template>
-      <template #customControlsPost='props'>
-        <b-button size='sm' class='ms-1' variant='primary' :to="{ name: 'GuestMedia', params: { guestId: props.item.id } }" v-b-tooltip.v-primary="'Media'" @click='$refs.Guests.selectRow(props.index)' pill><i class='bi bi-file-lock me-1 mt-1 mb-1'></i></b-button>
+      <template #customControlsPost='row'>
+        <BButton size='sm' variant='primary'
+                 v-b-tooltip.v-primary="'Media'" @click.stop='guestsList!.selectRow(row.item, true)' pill>
+          <VueFeather type="radio" size="16" />
+        </BButton>
       </template>
-      <template #color='props'>
-        <color :color='props.item.color ? props.item.color : {}'></color>
+      <template v-slot:cell(color)="props">
+        <AppColor :color='props.item.color ? props.item.color : {}'></AppColor>
       </template>
-      <template #sound='props'>
-        <b-link v-if='props.item.sound' :to="{ name: 'SoundList', query: { filter: `${props.item.sound.name}` } }">{{ props.item.sound.name }}</b-link>
-        <span v-if='!props.item.sound' class='text-muted'>&lt;default&gt;</span>
+      <template #[`cell(sound)`]="{ item }">
+        <BLink v-if='item.sound' :to="{ name: 'SoundList', query: { filter: `${item.sound.name}` } }">{{
+          item.sound.name }}</BLink>
+        <span v-if='!item.sound' class='text-muted'>&lt;default&gt;</span>
       </template>
-    </item-list>
-    <sound-player id='guestSoundPlayer' :soundName='playerSound'></sound-player>
+    </AppList>
     <router-view></router-view>
   </div>
 </template>
-<script>
-  import Color from '@/views/common/Color.vue'
-  import {Guest} from '@/components/model'
-  import List from '@/views/common/List.vue'
-  import SoundPlayer from '@/views/common/SoundPlayer.vue'
+<script setup lang="ts">
+import { Sound, Color, Guest, AppListConfig } from '@/components/model'
+import { useApi } from '@/composables/useApi'
+import { errorToString } from '@/components/Error'
+import { useSoundPlayer } from '@/composables/useSoundPlayer'
 
-  export default {
-    components: {
-      'item-list': List,
-      'sound-player': SoundPlayer,
-      'color': Color,
-    },
-    computed: {
-      colorInput: function() {
-        let color = null
-        if (!this.systemDefaultColorChecked) {
-          // The result of a color input box is hex color string (e.g. #c81919), need to convert that to an integer
-          color = parseInt(`0x${this.color.substring(1)}`)
-        }
-        return color
-      },
-      soundInput: function() {
-        let sound = null
-        if (!this.systemDefaultSoundChecked) {
-          sound = this.sound
-        }
-        return sound
-      },
-    },
-    data() {
-      return {
-        allSounds: [],
-        color: null,
-        customRenderFields: ['color', 'sound'],
-        errorResolver: this.$RFIDSecuritySvc.errorToString,
-        fields: [
-          {
-            key: 'firstName',
-            sortable: true,
-          },
-          {
-            key: 'lastName',
-            sortable: true,
-          },
-          {
-            key: 'sound',
-            sortable: true,
-          },
-          {
-            key: 'color',
-            label: 'Default Color',
-            sortable: true,
-          },
-          {
-            key: 'controls',
-            label: '',
-          }
-        ],
-        itemClass: Guest,
-        modalError: null,
-        playerSound: '',
-        sound: null,
-        systemDefaultColorChecked: false,
-        systemDefaultSoundChecked: false,
-        validationStates: {
-          id: null,
-          firstname: null,
-          lastname: null,
-          sound: null,
-        }
-      }
-    },
-    methods: {
-      createItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.guests.create(item.firstName, item.lastName, this.soundInput, this.colorInput)
-      },
-      deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.guests.delete(item.id)
-      },
-      guestSelected: function(selectedRows) {
-        if (selectedRows.length === 0) {
-          if (this.$route.name != 'GuestsList') {
-            this.$router.push({ name: 'GuestsList' })
-          }
-        } else {
-          let item = selectedRows[0]
-          if (this.$route.name != 'GuestMedia' || this.$route.params.guestId != item.id) {
-            this.$router.push({ name: 'GuestMedia', params: { guestId: item.id } })
-          }
-        }
-      },
-      itemsPromise: function() {
-        return this.$RFIDSecuritySvc.guests.list()
-      },
-      async showModal(item) {
-        if (item.color) {
-          this.color = item.color.html
-          this.systemDefaultColorChecked = false
-        } else {
-          // Vue.js doesn't like it when we set a color input to ''/null
-          // default color is black (#000000) so default it to that
-          this.color = '#000000'
-          this.systemDefaultColorChecked = true
-        }
+// This is the control for the sound player
+const { play } = useSoundPlayer()
+const router = useRouter()
+const route = useRoute()
+const api = useApi()
 
-        if (item.sound) {
-          this.sound = item.sound.id
-          this.systemDefaultSoundChecked = false
-        } else {
-          this.systemDefaultSoundChecked = true
-        }
+const soundValidationState = ref<boolean | null>(null)
+const props = defineProps<{
+  guestId?: number
+}>()
 
-        try {
-          this.allSounds = await this.$RFIDSecuritySvc.sound.list()
-          this.allSounds.sort((a,b) => (a.name > b.name) ? 1 : -1)
-        } catch(err) {
-          this.modalError = `Unable to load sounds: ${this.$RFIDSecuritySvc.errorToString(err)}`
-          // Because we can't load the sounds, the only option will be the system default
-          this.systemDefaultSoundChecked = true
-        }
-      },
-      updateItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.guests.update(item.id, item.firstName, item.lastName, this.soundInput, this.colorInput)
-      },
-    },
+const guestsList = useTemplateRef('guestsList')
+
+/**
+ * Handles when a row is selected from the list, if we aren't on GuestMedia, will navigate there
+ * @param selectedRows the rows which are currently selected, this is an array because multi-select is possible for AppList though it's not for this list
+ */
+const guestSelected = (selected: Guest, index: number) => {
+  if (route.name != 'GuestMedia' || props.guestId != selected.id) {
+    router.push({ name: 'GuestMedia', params: { guestId: selected.id } })
   }
+}
+
+const guestUnselected = (selected: Guest, index: number) => {
+  if (route.name != 'GuestsList') {
+    router.push({ name: 'GuestsList' })
+  }
+}
+
+const config = new AppListConfig(Guest, api.guests.list)
+config.create = (item: Guest) => api.guests.create(item)
+config.delete = (item: Guest) => api.guests.delete(item.id)
+config.update = (item: Guest) => {
+  return api.guests.update(item)
+}
+config.showModalCallback = showModalCallback
+config.rowSelectedCallback = guestSelected
+config.rowUnselectedCallback = guestUnselected
+config.customValidationCallback = (_: HTMLFormElement, valid: boolean): boolean => {
+  const customValid = useDefaultSoundChecked.value ? true : sound.value !== ''
+  soundValidationState.value = customValid
+  return valid && customValid
+}
+const useDefaultColorChecked = ref(false)
+const useDefaultSoundChecked = ref(false)
+const color = ref('')
+const sound = ref('')
+const modalError = ref('')
+
+const allSounds: Ref<Sound[]> = ref([])
+
+const soundMap = computed(() => {
+  return allSounds.value.reduce((map, sound) => {
+    map[String(sound.id)] = sound;
+    return map;
+  }, {} as Record<string, Sound>);
+});
+
+/**
+ * The color and sound properties are complex and require some special handling in the modal
+ * This callback sets up the necessary state and watchers to handle those properties
+ * @param item the item being created or edited
+ */
+async function showModalCallback(item: Guest) {
+  soundValidationState.value = null
+  color.value = item.color?.html ?? '#000000'
+  useDefaultColorChecked.value = !item.color
+  sound.value = item.sound ? String(item.sound.id) : ''
+  useDefaultSoundChecked.value = !item.sound
+
+  watch([color, useDefaultColorChecked, sound, useDefaultSoundChecked], () => {
+    item.color = useDefaultColorChecked.value
+      ? null
+      : Color.fromNumber(parseInt(`0x${color.value.substring(1)}`));
+
+    item.sound = useDefaultSoundChecked.value
+      ? null
+      : (soundMap.value[sound.value] ?? null);
+  });
+
+  try {
+    const sounds = await api.sound.list()
+    allSounds.value = sounds.sort((a, b) => a.name.localeCompare(b.name))
+  } catch (err) {
+    modalError.value = `Unable to load sounds: ${errorToString(err as Error)}`
+    // Because we can't load the sounds, the only option will be the default
+    useDefaultSoundChecked.value = true
+  }
+}
+
+const isRefreshingSounds = ref(false)
+
+async function refreshSounds() {
+  isRefreshingSounds.value = true
+  try {
+    const sounds = await api.sound.list()
+    allSounds.value = sounds.sort((a, b) => a.name.localeCompare(b.name))
+  } catch (err) {
+    modalError.value = `Failed to refresh sounds: ${errorToString(err as Error)}`
+  } finally {
+    isRefreshingSounds.value = false
+  }
+}
+
 </script>

@@ -1,24 +1,22 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import Home from '@/views/Home.vue'
-import configRoutes from './config'
-import guestRoutes from './guests'
-import mediaRoutes from './media'
-import permissionRoutes from './permission'
-import soundRoutes from './sound'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { configRoutes } from './config'
+import { guestsRoutes } from './guests'
+import { mediaRoutes } from './media'
+import { permissionRoutes } from './permission'
+import { soundRoutes } from './sound'
 
 const routes: RouteRecordRaw[] = [
+  ...configRoutes,
+  ...guestsRoutes,
+  ...mediaRoutes,
+  ...permissionRoutes,
+  ...soundRoutes,
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: () => import('@/views/Home.vue'),
   },
 ]
-
-routes.push(...configRoutes)
-routes.push(...guestRoutes)
-routes.push(...mediaRoutes)
-routes.push(...permissionRoutes)
-routes.push(...soundRoutes)
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

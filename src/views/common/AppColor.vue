@@ -12,14 +12,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type Color from '@/components/model/Color'
+import { Color } from '@/components/model';
 
-const props = withDefaults(defineProps<{
-  color: Color
-  nullColorValue?: string
+
+const props = withDefaults(defineProps< {
+  color: Color,
+  nullColorValue?: string,
 }>(), {
-  nullColorValue: '',
+  nullColorValue: "<default>",
 })
 
 const colorStyle = computed(() =>

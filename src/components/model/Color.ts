@@ -1,26 +1,30 @@
-import BaseModel from './BaseModel'
+import { BaseModel } from './BaseModel'
 
-export interface ColorSpec {
-  int: number
-  hex: string
-  html: string
-} 
+export class Color extends BaseModel<Color> {
+  static override primaryKey(): string {
+    return 'int'
+  }
 
-class Color extends BaseModel {
-  static type: string = 'Color'
-  // This was originally int but then there was an overridden diplayIdentifier that returned html, this may need to be changed back.
-  static primaryKey: string = 'html'
+  // Need to override this entire method because the value is not an object, it's just the int property
+  override toApiInput(): Record<string, any> | number | string {
+    return this.int
+  }
 
-  int: number
-  hex: string
-  html: string
+  static fromNumber(int: number): Color {
+    return new Color({
+      int: int,
+      hex: int.toString(16).toUpperCase().padStart(6, '0'),
+      html: `#${int.toString(16).padStart(6, '0')}`
+    })
+  }
 
-  constructor({int, hex, html}: ColorSpec) {
-    super()
-    this.int = int
-    this.hex = hex
-    this.html = html
+  int: number = undefined as any
+  hex: string = undefined as any
+  html: string = undefined as any
+
+  
+  constructor(data: Partial<Color>) {
+    super(data)
+    Object.assign(this, data)
   }
 }
- 
-export default Color

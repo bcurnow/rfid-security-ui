@@ -1,144 +1,126 @@
 <template>
-  <div class='container text-start'>
-    <item-list
-      :createItemPromise='createItemPromise'
-      :customRenderFields='customRenderFields'
-      :deleteItemPromise='deleteItemPromise'
-      :fields='fields'
-      :itemClass='itemClass'
-      :itemsPromise='itemsPromise'
-      ref='Media'
-      :rowSelected='mediaSelected'
-      :updateItemPromise='updateItemPromise'
-      :validationStates='validationStates'>
+  <div>
+    <AppList :config="config" , ref="mediaList">
       <template #headerMessage>Select a row to see associated permissions</template>
-      <template #customControlsPost='props'>
-        <b-button size='sm' class='ms-1' variant='primary' :to="{ name: 'MediaPermissions', params: { mediaId: props.item.id } }" v-b-tooltip.v-primary="'Permissions'" @click='$refs.Media.selectRow(props.index)' pill><i class='bi bi-key-fill me-1 mt-1 mb-1'></i></b-button>
+      <template #customControlsPost='row'>
+        <BButton size='sm' variant='primary'
+                 :to="{ name: 'MediaPermissions', params: { mediaId: row.item.id || '' } }"
+                 v-b-tooltip.v-primary="'Permissions'" @click="mediaList!.selectRow(row.item, true)" pill>
+          <VueFeather type="key" size="16" />
+        </BButton>
       </template>
-      <template #id='props'>
-        {{ selectRow(props) }}
-      </template>
-      <template #formGroups='props'>
-        <b-form-group label='Name:' label-for='name-input' invalid-feedback='A media name is required!'>
-          <b-form-input id='name-input' v-model='props.item.name' :state='validationStates.name' placeholder='Media Name' @invalid='validationStates.name = false' required></b-form-input>
-        </b-form-group>
-        <b-form-group label='Description:' label-for='desc-input'>
-          <b-form-textarea id='desc-input' v-model='props.item.desc' placeholder='Media Description'></b-form-textarea >
-        </b-form-group>
-        <b-form-group label='UUID:' label-for='id-input' invalid-feedback='A media UUID is required!' :state='validationStates.id'>
-          <b-input-group>
-            <b-form-input id='id-input' v-model='props.item.id' v-if='!props.isNew' readonly></b-form-input>
-            <b-form-input id='id-input' v-model='props.item.id' v-if='props.isNew' :state='validationStates.id' placeholder='Media UUID' @invalid='validationStates.id = false' required></b-form-input>
-            <b-input-group-append>
-              <b-button variant='info' @click='readMedia(props.item)' v-if='props.isNew'>Read Media</b-button>
-            </b-input-group-append>
-          </b-input-group>
-          <b-toast id='readingToast' variant='info' toaster='readingToaster' static solid no-close-button no-auto-hide>Please place the media near the reader</b-toast>
-          <b-toast id='readingErrorToast' variant='danger' toaster='readingToaster' static solid no-close-button no-auto-hide>{{ mediaReadError }}</b-toast>
-        </b-form-group>
+      <template #itemDetailsForm='row'>
+        <BFormGroup class="mb-1" label='Name' label-for='name-input' invalid-feedback='A media name is required'
+                    floating>
+          <BFormInput id='name-input' v-model='row.item.name' placeholder='Media Name' required></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Description:' label-for='desc-input' floating>
+          <BFormTextarea id='desc-input' v-model='row.item.desc' placeholder='Media Description'></BFormTextArea>
+        </BFormGroup>
+        <BFormGroup class="mb-1" invalid-feedback='A media UID is required' :state="mediaValidationState">
+          <BInputGroup>
+            <BFormInput id=' id-input' v-model='row.item.id' :plaintext="!row.isNew" :required="row.isNew">
+            </BFormInput>
+            <BButton variant='info' @click='readMedia(row.item)'>Read Media</BButton>
+          </BInputGroup>
+        </BFormGroup>
       </template>
       <template #emptyfiltered>No media found with current filter settings</template>
-    </item-list>
-    <router-view></router-view>
+    </AppList>
+    <router-view :key="route.params.mediaId as string || 'empty'" v-if="route.params.mediaId"></router-view>
   </div>
 </template>
-<script>
-  import List from '@/views/common/List.vue'
-  import {Media} from '@/components/model'
+<script setup lang="ts">
+import { Media, AppListConfig } from '@/components/model'
+import { useApi } from '@/composables/useApi';
+import { useToast } from 'bootstrap-vue-next';
+import AppList from '@/views/common/AppList.vue';
+import type { ComponentExposed } from 'vue-component-type-helpers';
+import router from '@/router';
 
-  export default {
-    components: {
-      'item-list': List,
-    },
-    data() {
-      return {
-        customRenderFields: ['id'],
-        fields: [
-          {
-            key: 'name',
-            sortable: true,
-          },
-          {
-            key: 'desc',
-          },
-          {
-            key: 'id',
-            label: 'UUID',
-            sortable: true,
-          },
-          {
-            key: 'controls',
-            label: '',
-          }
-        ],
-        itemClass: Media,
-        mediaReadError: '',
-        validationStates: {
-          id: null,
-          name: null,
-        }
-      }
-    },
-    methods: {
-      createItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.media.create(item)
-      },
-      deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.media.delete(item.id)
-      },
-      itemToDisplayString: item => {
-        return item.name
-      },
-      itemsPromise: function() {
-        return this.$RFIDSecuritySvc.media.list()
-      },
-      mediaSelected: function(selectedRows) {
-        if (selectedRows.length === 0) {
-          if (this.$route.name != 'MediaList') {
-            this.$router.push({ name: 'MediaList' })
-          }
-        } else {
-          let item = selectedRows[0]
-          if (this.$route.name != 'MediaPermissions' || this.$route.params.mediaId != item.id) {
-            this.$router.push({ name: 'MediaPermissions', params: { mediaId: item.id } })
-          }
-        }
-      },
-      readMedia: function(item) {
-        this.$bvToast.hide('readingErrorToast')
-        this.$bvToast.show('readingToast')
+const api = useApi()
+const route = useRoute()
 
-        this.$RFIDSecuritySvc.reader.getUid()
-        .then(response => {
-          // Because the common list component sets the create item to an empty object ({})
-          // none of the properties of that object are reactive, the form is able to
-          // update the object so create works but for us to update via code, we need to let
-          // Vue know that we've added the property, the $set method does this
-          this.$set(item, 'id', response.data)
-          this.$bvToast.hide('readingToast')
-        })
-        .catch(err => {
-          this.mediaReadError = `An error occurred while reading media: ${err}`
-          this.$bvToast.hide('readingToast')
-          this.$bvToast.show('readingErrorToast')
-        })
-      },
-      selectRow(props) {
-        if (props.item.id === this.$route.params.mediaId) {
-          props.selectRow(props.index)
-        }
-        return props.item.id
-      },
-      updateItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.media.update(item.id, item.name, item.desc)
-      },
-    },
-    watch: {
-      '$route'(to) {
-        if (to.name === 'MediaList') {
-          this.$refs.Media.clearSelected()
-        }
-      }
-    }
+const mediaValidationState = ref<boolean | null>(null)
+
+const props = defineProps<{
+  mediaId?: string
+}>()
+
+const mediaList = useTemplateRef<ComponentExposed<typeof AppList>>('mediaList')
+
+const mediaSelected = (media: Media, index: number) => {
+  if (route.params.mediaId != media.id) {
+    router.push({ name: 'MediaPermissions', params: { mediaId: media.id } })
   }
+}
+
+const mediaUnselected = (media: Media, index: number) => {
+  // There can only be one selected at a time
+  if (route.name != 'MediaList') {
+    router.push({ name: "MediaList" })
+  }
+}
+
+const config = new AppListConfig<Media>(Media, api.media.list)
+config.create = (item: Media) => api.media.create(item)
+config.delete = (item: Media) => api.media.delete(item.id)
+config.update = (item: Media) => api.media.update(item)
+config.rowSelectedCallback = mediaSelected
+config.rowUnselectedCallback = mediaUnselected
+config.customValidationCallback = (_: HTMLFormElement, valid: boolean): boolean => {
+  mediaValidationState.value = valid
+  return valid
+}
+config.showModalCallback = () => {
+  mediaValidationState.value = null
+}
+
+const toast = useToast()
+
+const readMedia = (item: Media): void => {
+  // Show a toast message to let the user know to place their media near the reader
+  const readingMediaToast = toast.create({
+    id: 'mediaReadToast',
+    title: 'Reading Media',
+    content: 'Please place the media near the reader',
+    variant: 'info',
+    solid: true,
+    noAutoHide: true,
+  })
+
+  try {
+    api.reader.getUid().then(uid => {
+      item.id = uid
+      readingMediaToast.hide()
+    }).catch(err => {
+      readingMediaToast.hide()
+      const errorToast = toast.create({
+        title: 'Error Reading Media',
+        content: `An error occurred while reading media: ${err}`,
+        variant: 'danger',
+        solid: true,
+        noAutoHide: true,
+      })
+      errorToast.show()
+    })
+  } finally {
+    // No matter what, make sure the reading toast is hidden
+    readingMediaToast.hide()
+  }
+}
+
+watch(() => route.name as string, (newName: string) => {
+  if (newName === 'MediaList') {
+    mediaList.value?.clearSelected()
+  }
+});
+
+const selectRow = (item: Media) => {
+  if (item.id === route.params.mediaId) {
+    mediaList.value?.selectRow(item)
+  }
+
+  return item.id
+}
 </script>

@@ -1,28 +1,23 @@
-import BaseModel from './BaseModel'
+import { BaseModel } from './BaseModel'
 
-export interface SoundSpec {
-  id: number
-  name: string
-  lastUpdateTimestamp: number
-  content: string
-}
+export class Sound extends BaseModel<Sound> {
 
-class Sound extends BaseModel {
-  static type: string = 'Sound'
-  static primaryKey: string = 'id'
-
-  id : number
-  name: string
-  lastUpdateTimestamp: number
-  content: string
-  
-  constructor({id, name, lastUpdateTimestamp, content}: SoundSpec) {
-    super()
-    this.id = id
-    this.name = name
-    this.lastUpdateTimestamp = lastUpdateTimestamp
-    this.content = content
+  // Need to override this entire method because the value is not an object, it's just the id property
+  override toApiInput(): Record<string, any> | number | string {
+    return this.id
   }
+  
+  id: number = undefined as any
+  name: string = undefined as any
+  lastUpdateTimestamp: string = undefined as any
+  content: string = undefined as any
+  
+  constructor(data: Partial<Sound>) {
+    super(data)
+    Object.assign(this, data)
 }
 
-export default Sound
+  override displayIdentifier(): string {
+    return this.name
+  }  
+}

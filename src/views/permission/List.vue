@@ -1,72 +1,27 @@
 <template>
-  <div class='container text-start'>
-    <item-list
-      :createItemPromise='createItemPromise'
-      :deleteItemPromise='deleteItemPromise'
-      :fields='fields'
-      :itemsPromise='itemsPromise'
-      :itemClass='itemClass'
-      :updateItemPromise='updateItemPromise'
-      :validationStates='validationStates'>
-      <template #formGroups='props'>
-        <b-form-group label='ID:' label-for='id-input' v-if='!props.isNew'>
-          <b-form-input id='id-input' v-model='props.item.id' readonly></b-form-input>
-        </b-form-group>
-        <b-form-group label='Name:' label-for='name-input' invalid-feedback='A permission name is required!'>
-          <b-form-input id='name-input' v-model='props.item.name' :state='validationStates.name' @invalid='validationStates.name = false' placeholder='Permission Name' required></b-form-input>
-        </b-form-group>
-        <b-form-group label='Description:' label-for='desc-input'>
-          <b-form-input id='desc-input' v-model='props.item.desc' placeholder='Permission Description'></b-form-input>
-        </b-form-group>
+  <div>
+    <AppList :config="config">
+      <template #itemDetailsForm='row'>
+        <BFormGroup class="mb-1" label='ID' label-for='id-input' v-if='!row.isNew'>
+          <BFormInput id='id-input' v-model='row.item.id' plaintext></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Name' label-for='name-input' invalid-feedback='A permission name is required'
+                    floating>
+          <BFormInput id='name-input' v-model='row.item.name' placeholder='Name' required></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Description' label-for='desc-input' floating>
+          <BFormInput id='desc-input' v-model='row.item.desc' placeholder='Description'></BFormInput>
+        </BFormGroup>
       </template>
-    </item-list>
+    </AppList>
   </div>
 </template>
-<script>
-  import List from '@/views/common/List.vue'
-  import {Permission} from '@/components/model'
-
-  export default {
-    components: {
-      'item-list': List,
-    },
-    data() {
-      return {
-        fields: [
-          {
-            key: 'name',
-            sortable: true,
-          },
-          {
-            key: 'desc',
-          },
-          {
-            key: 'controls',
-            label: '',
-          }
-        ],
-        itemClass: Permission,
-        validationStates: {
-          name: null,
-        }
-      }
-    },
-    methods: {
-      createItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.permission.create(item)
-      },
-      deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.permission.delete(item.id)
-      },
-      itemToDisplayString: item => {
-        return item.name
-      },
-      itemsPromise: function() {
-        return this.$RFIDSecuritySvc.permission.list()
-      },
-      updateItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.permission.update(item.id, item.name, item.desc)
-      }
-    },
-  }
+<script setup lang="ts">
+import { Permission, AppListConfig } from '@/components/model'
+import { useApi } from '@/composables/useApi';
+const api = useApi()
+const config = new AppListConfig<Permission>(Permission, api.permission.list)
+config.create = (item: Permission) => api.permission.create(item)
+config.delete = (item: Permission) => api.permission.delete(item.id)
+config.update = (item: Permission) => api.permission.update(item)
 </script>

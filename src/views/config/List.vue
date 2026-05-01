@@ -1,69 +1,36 @@
 <template>
-  <div class='container text-start'>
-    <item-list
-      :createItemPromise='createItemPromise'
-      :deleteItemPromise='deleteItemPromise'
-      :fields='fields'
-      :itemClass='itemClass'
-      :itemsPromise='itemsPromise'
-      :updateItemPromise='updateItemPromise'
-      :validationStates='validationStates'>
-      <template #formGroups='props'>
-        <b-form-group label='Key:' label-for='key-input' invalid-feedback='A configuration key is required!'>
-          <b-form-input id='key-input' v-model='props.item.key' v-if='!props.isNew' readonly></b-form-input>
-          <b-form-input id='key-input' v-model='props.item.key' v-if='props.isNew' :state='validationStates.key' @invalid='validationStates.key = false' placeholder='Config Key' required></b-form-input>
-        </b-form-group>
-        <b-form-group label='Value:' label-for='value-input' invalid-feedback='A configuration value is required!'>
-          <b-form-input id='value-input' v-model='props.item.value' :state='validationStates.value' @invalid='validationStates.value = false' placeholder='Config Value' required></b-form-input>
-        </b-form-group>
+  <div>
+    <AppList :config="config">
+      <template #itemDetailsForm='row'>
+        <BFormGroup class="mb-1" label='Key' label-for='key-input' invalid-feedback='A configuration key is required'
+                    floating>
+          <BFormInput id='key-input' v-model='row.item.key' :plaintext="!row.isNew" placeholder='Key'
+                      :required="row.isNew"></BFormInput>
+        </BFormGroup>
+        <BFormGroup class="mb-1" label='Value' label-for='value-input'
+                    invalid-feedback='A configuration value is required' floating>
+          <BFormInput id='value-input' v-model='row.item.value' placeholder='Value' required></BFormInput>
+        </BFormGroup>
       </template>
-    </item-list>
+    </AppList>
   </div>
 </template>
-<script>
-  import List from '@/views/common/List.vue'
-  import {Config} from '@/components/model'
-  export default {
-    components: {
-      'item-list': List,
-    },
-    data() {
-      return {
-        fields: [
-          {
-            key: 'key',
-            sortable: true,
-            label: 'Key'
-          },
-          {
-            key: 'value',
-            sortable: true,
-          },
-          {
-            key: 'controls',
-            label: '',
-          }
-        ],
-        itemClass: Config,
-        validationStates: {
-          key: null,
-          value: null,
-        }
-      }
-    },
-    methods: {
-      createItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.config.create(item)
-      },
-      deleteItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.config.delete(item.key)
-      },
-      itemsPromise: function() {
-        return this.$RFIDSecuritySvc.config.list()
-      },
-      updateItemPromise: function(item) {
-        return this.$RFIDSecuritySvc.config.update(item.key, item.value)
-      }
-    },
-  }
+<script setup lang="ts">
+import { useApi } from '@/composables/useApi'
+import { Config } from '@/components/model'
+import { AppListConfig } from '@/components/model';
+
+// We need to call this inside setup directly because otherwise we'll lose the injection context
+// This should stay as close to the top as possible
+const api = useApi()
+
+const config: AppListConfig<Config> = new AppListConfig(Config, api.config.list)
+config.create = (item: Config) => api.config.create(item)
+config.delete = (item: Config) => api.config.delete(item.key)
+config.update = (item: Config) => api.config.update(item)
+// Define custom post filter logic to remove the ADMIN_API_KEY config entry, this is what controls
+// the access to the API and should not be modified with the UI
+config.itemsFilter = async (items: Config[]) => {
+  return items.filter(item => item.key !== 'ADMIN_API_KEY')
+}
 </script>

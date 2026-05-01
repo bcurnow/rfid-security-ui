@@ -1,26 +1,16 @@
-import BaseModel from './BaseModel'
+import { BaseModel } from './BaseModel'
 
-export interface ConfigSpec {
-  key: string
-  value: string
-}
+export class Config extends BaseModel<Config> {
 
-class Config extends BaseModel {
-  static type: string = 'Config'
-  static primaryKey: string = 'key'
-
-  key: string
-  value: string
+  static override primaryKey(): string {
+    return 'key'
+  }
   
-  constructor({key, value}: ConfigSpec) {
-    super()
-    this.key = key
-    this.value = value
-  }
-
-  isControllable(): boolean {
-    return this.key !== 'ADMIN_API_KEY'
+  key: string = undefined as any
+  value: string = undefined as any
+  
+  constructor(data: Partial<Config>) {
+    super(data)
+    Object.assign(this, data)
   }
 }
- 
-export default Config

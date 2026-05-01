@@ -1,37 +1,28 @@
-import BaseModel from './BaseModel'
-import Color from './Color'
-import Sound from './Sound'
+import { BaseModel, Color, Sound } from '@/components/model'
 
-export interface GuestSpec {
-  id: number
-  firstName: string
-  lastName: string
-  sound?: Sound
-  color?: Color
-}
+export class Guest extends BaseModel<Guest> {
+  id: number = undefined as any
+  firstName: string = undefined as any
+  lastName: string = undefined as any
+  sound: Sound | null = undefined as any
+  color: Color | null = undefined as any
 
-class Guest extends BaseModel {
-  static type: string = 'Guest'
-  static primaryKey: string = 'id'
+  constructor(data: Partial<Guest>) {
+    super(data)
+    Object.assign(this, data)
 
-  id: number
-  firstName: string
-  lastName: string
-  sound: Sound | null
-  color: Color | null
-
-  constructor({ id, firstName, lastName, sound, color }: GuestSpec) {
-    super()
-    this.id = id
-    this.firstName = firstName
-    this.lastName = lastName
-    this.sound = sound ? new Sound(sound) : null
-    this.color = color ? new Color(color) : null
+    // assign only populates plain values, not nested objects
+    this.sound = null
+    if (data.sound) {
+      this.sound = new Sound(data.sound)
+    }
+    this.color = null
+    if (data.color) {
+      this.color = new Color(data.color)
+    }
   }
 
-  displayIdentifier() {
+  override displayIdentifier() {
     return `${this.firstName} ${this.lastName}`
   }
 }
-
-export default Guest

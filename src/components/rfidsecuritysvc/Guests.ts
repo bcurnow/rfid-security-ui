@@ -1,34 +1,26 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base.js'
-import { combineURLs } from './Base'
-import Guest, {type GuestSpec } from '@/components/model/Guest'
-import List from '@/views/common/List.vue'
+import { AxiosInstance, type AxiosResponse } from 'axios'
+import { combineURLs } from '@/composables/useAxios';
+import { Guest, GuestInput } from '@/components/model'
 
 const BASE_URL = '/guests'
 
-const svc = {
-  create(data: GuestSpec): Promise<AxiosResponse> {
-    return api.post<void>(BASE_URL, data)
+export const guestsSvc = (axios: AxiosInstance) => ({
+  async create(guest: Guest): Promise<Guest> {
+    const response = await axios.post<Guest>(BASE_URL, guest.toApiInput())
+    return Guest.fromApi(response.data)
   },
-  delete(id: string): Promise<AxiosResponse> {
-    return api.delete<void>(combineURLs(BASE_URL, String(id)), {})
+  async delete(id: number): Promise<AxiosResponse> {
+    return await axios.delete<void>(combineURLs(BASE_URL, String(id)), {})
   },
-  async get(id: string): Promise<Guest> {
-    const response = await api.get<GuestSpec>(combineURLs(BASE_URL, String(id)), {})
-    return new Guest(response.data)
+  async get(id: number): Promise<Guest> {
+    const response = await axios.get<Guest>(combineURLs(BASE_URL, String(id)), {})
+    return Guest.fromApi(response.data)
   },
-  async List(): Promise<Guest[]> {
-    const response = await api.get<GuestSpec[]>(BASE_URL, {})
-    return response.data.map(item => new Guest(item))
+  async list(): Promise<Guest[]> {
+    const response = await axios.get<Guest[]>(BASE_URL, {})
+    return response.data.map(item => Guest.fromApi(item))
   },
-  async update(id: string, firstName: string, lastName: string, sound: string, color: string): Promise<AxiosResponse> {
-    return api.put<void>(combineURLs(BASE_URL, String(id)), {
-      first_name: firstName,
-      last_name: lastName,
-      sound: sound,
-      color: color,
-    })
+  async update(guest: Guest): Promise<AxiosResponse> {
+    return axios.put<void>(combineURLs(BASE_URL, String(guest.id)), guest.toApiInput())
   }
-}
-
-export default svc
+})

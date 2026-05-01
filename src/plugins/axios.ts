@@ -2,14 +2,20 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { App, InjectionKey } from 'vue';
+import config from '@/config'
 
-const config: AxiosRequestConfig = {
-  // baseURL: import.meta.env.VITE_API_URL || '',
-  // timeout: 60 * 1000,
-  // withCredentials: true,
+
+export const axiosKey: InjectionKey<AxiosInstance> = Symbol('axios');
+
+const axiosRequestConfig: AxiosRequestConfig = {
+  baseURL: config.apiUrl,
+  timeout: 10 * 1000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 };
 
-const _axios: AxiosInstance = axios.create(config);
+const _axios: AxiosInstance = axios.create(axiosRequestConfig);
 
 _axios.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => config,
@@ -21,25 +27,13 @@ _axios.interceptors.response.use(
   (error: unknown): Promise<never> => Promise.reject(error)
 );
 
-// Typed injection key for Composition API
-export const axiosKey: InjectionKey<AxiosInstance> = Symbol('axios');
-
-// Augment Vue's globalProperties for Options API ($axios)
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $axios: AxiosInstance;
-  }
-}
-
 const AxiosPlugin = {
   install(app: App): void {
-    // Options API — this.$axios
-    app.config.globalProperties.$axios = _axios;
+    // We prefer the Provide/Inject approach for better type safety and to avoid polluting the global namespace.
+    // app.config.globalProperties.$axios = _axios;
 
-    // Composition API — const axios = inject(axiosKey)
     app.provide(axiosKey, _axios);
   }
 };
 
-export { _axios as axios };
 export default AxiosPlugin;

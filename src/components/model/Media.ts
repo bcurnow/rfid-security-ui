@@ -1,25 +1,20 @@
-import BaseModel from './BaseModel'
+import { BaseModel } from './BaseModel'
 
-export interface MediaSpec {
-  id: string
-  name: string
-  desc: string
-} 
 
-class Media extends BaseModel {
-  static type: string = 'Media'
-  static primaryKey: string = 'name'
+export class Media extends BaseModel<Media> {
+  id: string = undefined as any
+  name: string = undefined as any
+  desc: string = undefined as any
 
-  id: string
-  name: string
-  desc: string
-  
-  constructor({id, name, desc}: MediaSpec) {
-    super()
-    this.id = id
-    this.name = name
-    this.desc = desc
+  override inputExcludedProperties(): Set<string> {
+    return new Set([])
+  }
+  constructor(data: Partial<Media>) {
+    super(data)
+    Object.assign(this, data)
+  }
+
+  override displayIdentifier(): string {
+    return this.name
   }
 }
-
-export default Media

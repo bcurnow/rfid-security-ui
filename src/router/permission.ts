@@ -1,12 +1,9 @@
-import List from '@/views/permission/List.vue'
-import { type RouteRecordRaw } from 'vue-router'
+import { RouteRecordRaw } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+export const permissionRoutes: RouteRecordRaw[] = [
   {
     path: '/permissions',
     name: 'PermissionList',
-    component: List,
+    component:  () => import('@/views/permission/List.vue'),
   },
 ]
-
-export default routes

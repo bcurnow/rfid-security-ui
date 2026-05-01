@@ -1,38 +1,30 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base'
-import GuestMedia, { type GuestMediaSpec } from '@/components/model/GuestMedia'
-import { combineURLs } from './Base'
-import { s, st } from 'vue-router/dist/router-CWoNjPRp.mjs'
+import { AxiosInstance, type AxiosResponse } from 'axios'
+import {GuestMedia } from '@/components/model'
+import { combineURLs } from '@/composables/useAxios';
 
 const BASE_URL = '/guest-media'
 
-const svc = {
-  create(data: GuestMediaSpec): Promise<AxiosResponse>  {
-    return api.post<void>(BASE_URL, data)
+export const guestMediaSvc = (axios: AxiosInstance) => ({
+  async create(data: GuestMedia): Promise<GuestMedia>  {
+    const response = await axios.post<GuestMedia>(BASE_URL, data.toApiInput())
+    return GuestMedia.fromApi(response.data)
   },
-  delete(id: string): Promise<AxiosResponse> {
-    return api.delete<void>(combineURLs(BASE_URL, String(id)))
+  async delete(id: number): Promise<AxiosResponse> {
+    return axios.delete<void>(combineURLs(BASE_URL, String(id)))
   },
-  async get(id: string): Promise<GuestMedia> {
-    const response = await api.get<GuestMediaSpec>(combineURLs(BASE_URL, String(id)))
-    return new GuestMedia(response.data)
+  async get(id: number): Promise<GuestMedia> {
+    const response = await axios.get<GuestMedia>(combineURLs(BASE_URL, String(id)))
+    return GuestMedia.fromApi(response.data)
   },
   async list(): Promise<GuestMedia[]> {
-    const response = await api.get<GuestMediaSpec[]>(BASE_URL)
-    return response.data.map(item => new GuestMedia(item))
+    const response = await axios.get<GuestMedia[]>(BASE_URL)
+    return response.data.map(item => GuestMedia.fromApi(item))
   },
-  async listByGuest(guestId: string): Promise<GuestMedia[]> {
-    const response = await api.get<GuestMediaSpec[]>(BASE_URL, { params: { guest_id: guestId } })
-    return response.data.map(item => new GuestMedia(item))
+  async listByGuest(guestId: number): Promise<GuestMedia[]> {
+    const response = await axios.get<GuestMedia[][]>(BASE_URL, { params: { guest_id: guestId } })
+    return response.data.map(item => GuestMedia.fromApi(item))
   },
-  update(id: string, guestId: string, mediaId: string, sound: string, color: string): Promise<AxiosResponse> {
-    return api.put(combineURLs(BASE_URL, String(id)), {
-      guest_id: parseInt(guestId),
-      media_id: mediaId,
-      sound: sound,
-      color: color,
-    })
+  update(guestMedia: GuestMedia): Promise<AxiosResponse> {
+    return axios.put(combineURLs(BASE_URL, String(guestMedia.id)), guestMedia.toApiInput())
   }
-}
-
-export default svc
+})

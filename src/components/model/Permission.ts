@@ -1,29 +1,22 @@
-import BaseModel from './BaseModel'
+import { BaseModel } from './BaseModel'
 
-export interface PermissionSpec {
-  id: string
-  name: string
-  desc: string
-}
+/**
+ * A union type which allows the Permission to also have a disabled property which is used in when inside a select list
+ */
+export type SelectablePermission = Permission & { disabled?: boolean }
 
-class Permission extends BaseModel {
-  static type: string = 'Permission'
-  static primaryKey: string = 'id'
+export class Permission extends BaseModel<Permission> {
 
-  id: string
-  name: string
-  desc: string
+  id: number = undefined as any
+  name: string = undefined as any
+  desc: string = undefined as any
   
-  constructor({id, name, desc}: PermissionSpec) {
-    super()
-    this.id = id
-    this.name = name
-    this.desc = desc
-  }
+  constructor(data: Partial<Permission>) {
+    super(data)
+    Object.assign(this, data)
+ }
 
-  displayIdentifier(): string {
+  override displayIdentifier(): string {
     return this.name
   }
 }
-
-export default Permission

@@ -2,6 +2,10 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { readFileSync } from 'node:fs'
+import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import { BootstrapVueNextResolver } from 'bootstrap-vue-next/resolvers'
+
 
 // Read version and name directly from package.json
 const { version, name } = JSON.parse(readFileSync('./package.json', 'utf-8'))
@@ -13,8 +17,23 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [vue()],
-
+    plugins: [
+      vue(),
+      Components({
+        dirs: ['src/components', 'src/views/common', 'src/*.ts', 'src/*.vue'],
+        extensions: ['vue'],
+        deep: true,
+        dts: true,
+        resolvers: [
+          BootstrapVueNextResolver(),
+          (name: string) => name === 'VueFeather' ? { name: 'default', from: 'vue-feather' } : undefined,
+        ],
+        directoryAsNamespace: true,
+      }),
+      AutoImport({
+        imports: ['vue', 'vue-router'], // Automatically imports useRoute, useRouter, etc.
+      }),
+    ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -46,7 +65,7 @@ export default defineConfig(({ mode }) => {
 
       proxy: {
         '/api': {
-          target: env.VITE_PROXY_TARGET ?? 'http://rfidsecuritysvc:5000',
+          target: env.VITE_PROXY_TARGET ?? 'http://localhost:5000',
           changeOrigin: true,
           headers: {
             'X-RFIDSECURITYSVC-API-KEY': env.VITE_RFID_API_KEY ?? '',

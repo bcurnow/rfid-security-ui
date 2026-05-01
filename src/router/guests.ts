@@ -1,28 +1,25 @@
-import List from '@/views/guests/List.vue'
-import Media from '@/views/guests/Media.vue'
-import Permissions from '@/views/media/Permissions.vue'
-import { type RouteRecordRaw } from 'vue-router'
+import { RouteRecordRaw } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+export const guestsRoutes: RouteRecordRaw[] = [
   {
     path: '/guests',
     name: 'GuestsList',
-    component: List,
+    component: () => import('@/views/guests/List.vue'),
     children: [
       {
         path: ':guestId/media',
         name: 'GuestMedia',
-        component: Media,
+        component: () => import('@/views/guests/Media.vue'),
+        props: (route) => ({ guestId: Number(route.params.guestId) }),
         children: [
           {
             path: ':mediaId/permissions',
             name: 'GuestMediaPermissions',
-            component: Permissions,
+            component: () => import('@/views/media/Permissions.vue'),
+            props: (route) => ({ guestId: Number(route.params.guestId) })
           },
         ],
       },
     ],
   },
 ]
-
-export default routes

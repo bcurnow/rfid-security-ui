@@ -1,14 +1,12 @@
-import axios, { type AxiosResponse } from 'axios'
 import config from '@/config'
-import { combineURLs } from './Base'
-import { st } from 'vue-router/dist/router-CWoNjPRp.mjs'
+import { combineURLs } from '@/composables/useAxios';
 
 const BASE_URL = '/player'
 
-const svc = {
+export const playerSvc = {
   url(name: string): string {
-    return combineURLs(BASE_URL, name)
+    return combineURLs(config.apiUrl, combineURLs(BASE_URL, name))
   }
 }
 
-export default svc
+export default playerSvc

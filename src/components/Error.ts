@@ -1,6 +1,6 @@
 import axios, { type AxiosError } from 'axios'
 
-function errorToString(error: AxiosError | Error | null): string {
+export function errorToString(error: AxiosError | Error | null): string {
   if (!error) {
     return ''
   }

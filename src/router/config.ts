@@ -1,13 +1,10 @@
-import List from '@/views/config/List.vue'
-import { type RouteRecordRaw } from 'vue-router'
+import { RouteRecordRaw } from 'vue-router'
 
 
-const routes: RouteRecordRaw[] = [
+export const configRoutes: RouteRecordRaw[] = [
   {
     path: '/configs',
     name: 'ConfigList',
-    component: List,
+    component: () => import('@/views/config/List.vue'),
   },
 ]
-
-export default routes

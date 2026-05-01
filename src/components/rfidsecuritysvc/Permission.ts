@@ -1,31 +1,26 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base'
-import Permission, { type PermissionSpec } from '@/components/model/Permission'
-import { combineURLs } from './Base'
+import { type AxiosResponse, AxiosInstance } from 'axios'
+import { Permission } from '@/components/model'
+import { combineURLs } from '@/composables/useAxios';
 
 const BASE_URL = '/permissions'
 
-const svc = {
-  create(data: PermissionSpec): Promise<AxiosResponse> {
-    return api.post<void>(BASE_URL, data)
+export const permissionSvc = (axios: AxiosInstance) => ({
+  async create(data: Permission): Promise<Permission> {
+    const response = await axios.post<Permission>(BASE_URL, data)
+    return Permission.fromApi(response.data)
   },
-  delete(id: string): Promise<AxiosResponse> {
-    return api.delete<void>(combineURLs(BASE_URL, String(id)), {})
+  delete(id: number): Promise<AxiosResponse> {
+    return axios.delete<void>(combineURLs(BASE_URL, String(id)), {})
   },
-  async get(id: string): Promise<Permission> {
-    const response = await api.get<PermissionSpec>(combineURLs(BASE_URL, String(id)), {})
-    return new Permission(response.data)
+  async get(id: number): Promise<Permission> {
+    const response = await axios.get<Permission>(combineURLs(BASE_URL, String(id)), {})
+    return Permission.fromApi(response.data)
   },
   async list(): Promise<Permission[]> {
-    const response = await api.get<PermissionSpec[]>(BASE_URL, {})
-    return response.data.map(item => new Permission(item))
+    const response = await axios.get<Permission[]>(BASE_URL, {})
+    return response.data.map(item => Permission.fromApi(item))
   },
-  async update(id: string, name: string, desc: string): Promise<AxiosResponse> {
-    return api.put<void>(combineURLs(BASE_URL, String(id)), {
-      name: name,
-      desc: desc,
-    })
+  async update(permission: Permission): Promise<AxiosResponse> {
+    return axios.put<void>(combineURLs(BASE_URL, String(permission.id)), permission.toApiInput())
   }
-}
-
-export default svc
+})

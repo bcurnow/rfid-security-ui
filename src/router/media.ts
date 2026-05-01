@@ -1,19 +1,21 @@
-import List from '@/views/media/List.vue'
-import Permissions from '@/views/media/Permissions.vue'
-import { type RouteRecordRaw } from 'vue-router'
+import { RouteRecordRaw } from "vue-router";
 
-const routes: RouteRecordRaw[] = [  {
-    path: '/media',
-    name: 'MediaList',
-    component: List,
+export const mediaRoutes: RouteRecordRaw[] = [
+  {
+    path: "/media",
+    name: "MediaList",
+    component: () => import("@/views/media/List.vue"),
     children: [
       {
-        path: ':mediaId/permissions',
-        name: 'MediaPermissions',
-        component: Permissions,
+        path: ":mediaId",
+        name: "MediaPermissions",
+        component: () => import("@/views/media/Permissions.vue"),
+        props: (route) => ({
+          mediaId: Array.isArray(route.params.mediaId)
+            ? route.params.mediaId[0]
+            : route.params.mediaId,
+        }),
       },
     ],
   },
-]
-
-export default routes
+];

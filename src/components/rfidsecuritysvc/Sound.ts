@@ -1,28 +1,41 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base'
-import Sound, { type SoundSpec } from '@/components/model/Sound'
-import { combineURLs } from './Base'
+import { type AxiosResponse, AxiosInstance } from "axios";
+import { Sound } from "@/components/model";
+import { combineURLs } from "@/composables/useAxios";
 
-const BASE_URL = '/sounds'
+const BASE_URL = "/sounds";
 
-const svc = {
-  create: function(data: SoundSpec): Promise<AxiosResponse> {
-    return api.post<void>(BASE_URL, data)
+export const soundSvc = (axios: AxiosInstance) => ({
+  async create(name: string, content: File): Promise<Sound> {
+    // This API need to be a multipart form data request, so we need to convert the Sound object to a FormData object
+    const soundData = new FormData();
+    soundData.append("name", name);
+    soundData.append("content", content);
+    const response = await axios.post<Sound>(BASE_URL, soundData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return Sound.fromApi(response.data);
   },
-  delete: function(id: string): Promise<AxiosResponse> {
-    return api.delete<void>(combineURLs(BASE_URL, String(id)), {})
+  delete(id: number): Promise<AxiosResponse> {
+    return axios.delete<void>(combineURLs(BASE_URL, String(id)), {});
   },
-  async get(id: string): Promise<Sound> {
-    const response = await api.get<SoundSpec>(combineURLs(BASE_URL, String(id)), {})
-    return new Sound(response.data)
+  async get(id: number): Promise<Sound> {
+    const response = await axios.get<Sound>(
+      combineURLs(BASE_URL, String(id)),
+      {},
+    );
+    return Sound.fromApi(response.data);
   },
   async list(): Promise<Sound[]> {
-    const response = await api.get<SoundSpec[]>(BASE_URL, {})
-    return response.data.map(item => new Sound(item))
+    const response = await axios.get<Sound[]>(BASE_URL, {});
+    return response.data.map((item) => Sound.fromApi(item));
   },
-  update: function(id: string, data: SoundSpec): Promise<AxiosResponse> {
-    return api.put<void>(combineURLs(BASE_URL, String(id)), data)
-  }
-}
+  update(id: number, name: string, content: File): Promise<AxiosResponse> {
+    const soundData = new FormData();
+    soundData.append("name", name);
+    soundData.append("content", content);
 
-export default svc
+    return axios.put<void>(combineURLs(BASE_URL, String(id)), soundData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+});

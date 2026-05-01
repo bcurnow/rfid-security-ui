@@ -1,4 +1,4 @@
-import type { Config } from './config.types'
+import { type Config } from './config.types'
 
 const env: string = import.meta.env.MODE ?? 'development'
 

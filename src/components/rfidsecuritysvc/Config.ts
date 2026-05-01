@@ -1,31 +1,30 @@
-import axios, { type AxiosResponse } from 'axios'
-import api, { combineURLs } from './Base'
-import Config, { type ConfigSpec } from '@/components/model/Config'
+import { AxiosInstance, type AxiosResponse } from 'axios'
+import { Config } from '@/components/model'
+import { combineURLs } from '@/composables/useAxios';
 
 const BASE_URL = '/configs'
 
-const svc = {
-  create(data: ConfigSpec): Promise<AxiosResponse> {
-    return api.post<void>(BASE_URL, data)
+export const configSvc = (axios: AxiosInstance) => ({
+  async create(data: Config ): Promise<Config> {
+    const response = await axios.post<Config>(BASE_URL, data.toApiInput())
+    return Config.fromApi(response.data)
   },
 
   delete(key: string): Promise<AxiosResponse> {
-    return api.delete<void>(combineURLs(BASE_URL, key))
+    return axios.delete<void>(combineURLs(BASE_URL, key))
   },
 
   async get(key: string): Promise<Config> {
-    const response = await api.get<ConfigSpec>(combineURLs(BASE_URL, key))
-    return new Config(response.data)
+    const response = await axios.get<Config>(combineURLs(BASE_URL, key))
+    return Config.fromApi(response.data)
   },
 
   async list(): Promise<Config[]> {
-    const response = await api.get<ConfigSpec[]>(BASE_URL)
-    return response.data.map(item => new Config(item))
+    const response = await axios.get<Config[]>(BASE_URL)
+    return response.data.map(item => Config.fromApi(item))
   },
 
-  update(key: string, value: string): Promise<AxiosResponse> {
-    return api.put<void>(combineURLs(BASE_URL, key), { value })
+  update(config: Config): Promise<AxiosResponse> {
+    return axios.put<void>(combineURLs(BASE_URL, config.key), config.toApiInput())
   },
-}
-
-export default svc
+})

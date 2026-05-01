@@ -1,35 +1,30 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base'
-import Media, { type MediaSpec } from '@/components/model/Media'
-import { combineURLs } from './Base'
+import { type AxiosInstance, AxiosResponse } from 'axios'
+import { Media } from '@/components/model'
+import { combineURLs } from '@/composables/useAxios';
 
 const BASE_URL = '/media'
 
-const svc = {
-  create(data: MediaSpec): Promise<AxiosResponse> {
-    return api.post<void>(BASE_URL, data)
+export const mediaSvc = (axios: AxiosInstance) => ({
+  async create(data: Media): Promise<Media> {
+    const response = await axios.post<Media>(BASE_URL, data)
+    return Media.fromApi(response.data) 
   },
   delete:(id: string): Promise<AxiosResponse> =>  {
-    return api.delete<void>(combineURLs(BASE_URL, id), {})
+    return axios.delete<void>(combineURLs(BASE_URL, id), {})
   },
   async get(id: string): Promise<Media> {
-    const response = await api.get<MediaSpec>(combineURLs(BASE_URL, id), {})
-    return new Media(response.data)
+    const response = await axios.get<Media>(combineURLs(BASE_URL, id), {})
+    return Media.fromApi(response.data)
   },
   async list(): Promise<Media[]> {
-    const response = await api.get<MediaSpec[]>(BASE_URL, {})
-    return response.data.map(item => new Media(item))
+    const response = await axios.get<Media[]>(BASE_URL, {})
+    return response.data.map(item => Media.fromApi(item))
   },
   async listUnassociated(): Promise<Media[]> {
-    const response = await api.get<MediaSpec[]>(BASE_URL, { params: { excludeAssociated: true } })
-    return response.data.map(item => new Media(item))
+    const response = await axios.get<Media[]>(BASE_URL, { params: { exclude_associated: true } })
+    return response.data.map(item => Media.fromApi(item))
   },
-  async update(id: string, name: string, desc: string): Promise<AxiosResponse> {
-    return api.put<void>(combineURLs(BASE_URL, id), {
-      name: name,
-      desc: desc,
-    })
-  }
-}
-
-export default svc
+  async update(media: Media): Promise<AxiosResponse> {
+    return axios.put<void>(combineURLs(BASE_URL, media.id), media.toApiInput())
+  },
+})

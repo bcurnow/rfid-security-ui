@@ -1,12 +1,9 @@
-import List from '@/views/sound/List.vue'
-import { type RouteRecordRaw } from 'vue-router'
+import { RouteRecordRaw } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+export const soundRoutes: RouteRecordRaw[] = [
   {
-    component: List,
     name: 'SoundList',
     path: '/sounds',
+    component: () => import('@/views/sound/List.vue'),
   },
 ]
-
-export default routes

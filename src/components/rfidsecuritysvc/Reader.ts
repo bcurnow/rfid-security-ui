@@ -1,12 +1,13 @@
-import axios, { type AxiosResponse } from 'axios'
-import api from './Base.js'
+import { type AxiosResponse, AxiosInstance} from 'axios'
 
 const BASE_URL = '/reader'
 
-const svc = {
-  getUid(): Promise<AxiosResponse> {
-    return api.get(BASE_URL, {})
+export const readerSvc = (axios: AxiosInstance) => ({
+  getUid(): Promise<string> {
+    // Override the return so when in dev mode
+    if ( import.meta.env.MODE === 'development' ) {
+      return Promise.resolve("000000")
+    }
+    return axios.get(BASE_URL, {})
   },
-}
-
-export default svc
+})
