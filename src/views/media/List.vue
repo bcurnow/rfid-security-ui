@@ -78,8 +78,7 @@ config.showModalCallback = () => {
 
 const toast = useToast()
 
-const readMedia = (item: Media): void => {
-  // Show a toast message to let the user know to place their media near the reader
+const readMedia = async (item: Media): Promise<void> => {
   const readingMediaToast = toast.create({
     id: 'mediaReadToast',
     title: 'Reading Media',
@@ -88,24 +87,17 @@ const readMedia = (item: Media): void => {
     solid: true,
     noAutoHide: true,
   })
-
   try {
-    api.reader.getUid().then(uid => {
-      item.id = uid
-      readingMediaToast.hide()
-    }).catch(err => {
-      readingMediaToast.hide()
-      const errorToast = toast.create({
-        title: 'Error Reading Media',
-        content: `An error occurred while reading media: ${err}`,
-        variant: 'danger',
-        solid: true,
-        noAutoHide: true,
-      })
-      errorToast.show()
-    })
+    item.id = await api.reader.getUid()
+  } catch (err) {
+    toast.create({
+      title: 'Error Reading Media',
+      content: `An error occurred while reading media: ${err}`,
+      variant: 'danger',
+      solid: true,
+      noAutoHide: true,
+    }).show()
   } finally {
-    // No matter what, make sure the reading toast is hidden
     readingMediaToast.hide()
   }
 }
@@ -114,13 +106,5 @@ watch(() => route.name as string, (newName: string) => {
   if (newName === 'MediaList') {
     mediaList.value?.clearSelected()
   }
-});
-
-const selectRow = (item: Media) => {
-  if (item.id === route.params.mediaId) {
-    mediaList.value?.selectRow(item)
-  }
-
-  return item.id
-}
+})
 </script>

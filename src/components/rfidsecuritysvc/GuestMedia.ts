@@ -21,7 +21,7 @@ export const guestMediaSvc = (axios: AxiosInstance) => ({
     return response.data.map(item => GuestMedia.fromApi(item))
   },
   async listByGuest(guestId: number): Promise<GuestMedia[]> {
-    const response = await axios.get<GuestMedia[][]>(BASE_URL, { params: { guest_id: guestId } })
+    const response = await axios.get<GuestMedia[]>(BASE_URL, { params: { guest_id: guestId } })
     return response.data.map(item => GuestMedia.fromApi(item))
   },
   update(guestMedia: GuestMedia): Promise<AxiosResponse> {

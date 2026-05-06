@@ -167,10 +167,10 @@ const emptyFilteredMessage = computed(() => `No ${props.config.itemClass.display
 const hasCreateFunction = computed(() => !!props.config.create)
 const hasDeleteFunction = computed(() => !!props.config.delete)
 const hasUpdateFunction = computed(() => !!props.config.update)
-const selectable = computed(() => !!props.config.rowSelectedCallback || !!props.config.rowSelectedCallback || !!props.config.rowClickedCallback)
+const selectable = computed(() => !!props.config.rowSelectedCallback || !!props.config.rowUnselectedCallback || !!props.config.rowClickedCallback)
 const tableId = computed(() => `AppList.${props.config.itemClass.displayName().replace(/ /g, '')}Table`)
-const itemDetailsModalId = computed(() => `AppList.${props.config.itemClass.displayName().replace(/ g/, '')}ItemDetailsModal`)
-const itemDetailsFormId = computed(() => `AppList.${props.config.itemClass.displayName().replace(/ g/, '')}ItemDetailsForm`)
+const itemDetailsModalId = computed(() => `AppList.${props.config.itemClass.displayName().replace(/ /g, '')}ItemDetailsModal`)
+const itemDetailsFormId = computed(() => `AppList.${props.config.itemClass.displayName().replace(/ /g, '')}ItemDetailsForm`)
 const okDisabled = computed(() => !props.config.modalOkEnabled)
 const okOnly = computed(() => props.config.modalOkOnly)
 const showAlert = computed(() => alertMessage.value != '')
@@ -319,7 +319,7 @@ async function deleteItem(item: T, index: number): Promise<void> {
 /**
  * @show call back for the modal form, handles any setup needed before showing the form
  */
-const showModal = (): void => {
+const showModal = async (): Promise<void> => {
   // Make sure to reset the validations so they don't show by default. We only want them to show when clicking OK
   showValidation.value = false
   modalIsLoading.value = true
@@ -327,7 +327,7 @@ const showModal = (): void => {
     if (props.config.showModalCallback) {
       // If there's a custom callback provided, use it to allow for any custom setup needed for the form
       // This is especially helpful for forms that need to load additional data before showing like the Guest form with colors and sounds
-      props.config.showModalCallback(selected.value as T, isCreate.value)
+      await props.config.showModalCallback(selected.value as T, isCreate.value)
     }
   } finally {
     modalIsLoading.value = false

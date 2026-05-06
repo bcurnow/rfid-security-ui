@@ -1,6 +1,6 @@
 import { AxiosInstance, type AxiosResponse } from 'axios'
 import { combineURLs } from '@/composables/useAxios';
-import { Guest, GuestInput } from '@/components/model'
+import { Guest } from '@/components/model'
 
 const BASE_URL = '/guests'
 
@@ -10,14 +10,14 @@ export const guestsSvc = (axios: AxiosInstance) => ({
     return Guest.fromApi(response.data)
   },
   async delete(id: number): Promise<AxiosResponse> {
-    return await axios.delete<void>(combineURLs(BASE_URL, String(id)), {})
+    return axios.delete<void>(combineURLs(BASE_URL, String(id)))
   },
   async get(id: number): Promise<Guest> {
-    const response = await axios.get<Guest>(combineURLs(BASE_URL, String(id)), {})
+    const response = await axios.get<Guest>(combineURLs(BASE_URL, String(id)))
     return Guest.fromApi(response.data)
   },
   async list(): Promise<Guest[]> {
-    const response = await axios.get<Guest[]>(BASE_URL, {})
+    const response = await axios.get<Guest[]>(BASE_URL)
     return response.data.map(item => Guest.fromApi(item))
   },
   async update(guest: Guest): Promise<AxiosResponse> {

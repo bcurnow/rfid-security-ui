@@ -34,14 +34,12 @@ declare module 'vue' {
     BSpinner: typeof import('bootstrap-vue-next/components/BSpinner')['BSpinner']
     BTh: typeof import('bootstrap-vue-next/components/BTable')['BTh']
     BThead: typeof import('bootstrap-vue-next/components/BTable')['BThead']
-    BToast: typeof import('bootstrap-vue-next/components/BToast')['BToast']
     BTr: typeof import('bootstrap-vue-next/components/BTable')['BTr']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VueFeather: typeof import('vue-feather')['default']
   }
   export interface GlobalDirectives {
-    vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
     vBTooltip: typeof import('bootstrap-vue-next/directives/BTooltip')['vBTooltip']
   }
 }

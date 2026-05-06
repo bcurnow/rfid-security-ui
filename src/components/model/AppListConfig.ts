@@ -1,7 +1,6 @@
 import { AxiosResponse } from "axios";
 import { BaseModel, ConcreteBaseModel, ModelConstructor } from "./BaseModel"
-import { TableFieldRaw, BTableSortBy, TableField, TableRowEventObject } from "bootstrap-vue-next"
-import { table } from "node:console";
+import { TableFieldRaw, BTableSortBy, TableField, TableRowEventObject } from "bootstrap-vue-next";
 
 export class AppListConfig<T extends BaseModel<T>> {
   // The class (e.g. Guest, Media, etc.) that this is a list of
@@ -51,7 +50,7 @@ export class AppListConfig<T extends BaseModel<T>> {
   // Called when a table row is unselected
   rowUnselectedCallback?: ((selected: T, index: number) => void)
   // Called just before the modal dialog for create/update is shown. See Guests List and Media views and Media Permissions vue)
-  showModalCallback?: (item: T, isNew: boolean) => void
+  showModalCallback?: (item: T, isNew: boolean) => void | Promise<void>
   // The field (or fields) to sort the table by, this sets the initial sort order of the table but the user can change it by clicking on the table headers. See the BTableSortBy type for more details
   sortBy?: BTableSortBy[]
 
