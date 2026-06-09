@@ -27,7 +27,7 @@
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/compiler-sfc": "^3.5.0",
     "@vue/tsconfig": "^0.9.1",
-    "sass": "^1.55.0",
+    "sass": "^1.100.0",
     "typescript": "^6.0.3",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.1.0",
