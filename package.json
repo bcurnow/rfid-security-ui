@@ -25,7 +25,7 @@
     "@types/node": "^26.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/coverage-v8": "^4.1.10",
-    "@vue/compiler-sfc": "^3.5.0",
+    "@vue/compiler-sfc": "^3.5.41",
     "@vue/tsconfig": "^0.9.1",
     "sass": "^1.102.0",
     "typescript": "^7.0.2",
